@@ -59,9 +59,26 @@ namespace DiarrhoeaEngine
             world.Render();
             //UI.Render();
         }
+
+
+        public static float loop = 0.0f;
+        private static bool up = true;
+
         private static void OnUpdate(double obj)
         {
             controls.Update();
+
+            if(up)
+            {
+                loop += 1.0f / (float)window.FramesPerSecond;
+                if (loop >= 1.0f) up = false;
+            }
+            else
+            {
+                loop -= 1.0f / (float)window.FramesPerSecond;
+                if (loop <= 0.0f) up = true;
+            }
+            
         }
         private static void OnResize(Vector2D<int> obj)
         {
