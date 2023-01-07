@@ -4,26 +4,27 @@ namespace DiarrhoeaEngine
 {
     public class ShaderManager
     {
-        private Dictionary<string, uint> shaders = new Dictionary<string, uint>();
-        public uint active { get; private set; }
+        private List<Shader> shaders = new List<Shader>();
+        private uint _active = 0;
+
+        public Shader GetActive()
+        {
+            return shaders[(int)_active];
+        }
 
         public void ActivateShaderProgram(string title)
         {
-            if (!shaders.ContainsKey(title)) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
+            Shader? shader = shaders.Find(x => x.name == title);
+            if (shader == null) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
 
             Program.GL.UseProgram(0);
-            Program.GL.UseProgram(shaders[title]);
-            active = shaders[title];
+            Program.GL.UseProgram(shader.id);
+            _active = (uint)shaders.IndexOf(shader);
         }
 
-        public bool HasLoadedProgram(string title)
+        public Shader LoadProgram(string title="default")
         {
-            return shaders.ContainsKey(title);
-        }
-
-        public void LoadProgram(string title="default")
-        {
-            if (shaders.ContainsKey(title)) return;
+            if (shaders.Exists(x => x.name == title)) return shaders.Find(x => x.name == title);
 
             uint program = Program.GL.CreateProgram();
 
@@ -42,7 +43,9 @@ namespace DiarrhoeaEngine
             string info = Program.GL.GetProgramInfoLog(program);
             if (!string.IsNullOrEmpty(info)) throw new Exception(info);
 
-            shaders.Add(title, program);
+            Shader result = new Shader(program, title);
+            shaders.Add(result);
+            return result;
         }
 
         private uint LoadShader(string title, ShaderType type)
@@ -68,12 +71,6 @@ namespace DiarrhoeaEngine
             if (!string.IsNullOrEmpty(info)) throw new Exception(info);
 
             return id; 
-        }
-
-        public void SetInt(string shader, string name, int value)
-        {
-            int location = Program.GL.GetUniformLocation(shaders[shader], name);
-            Program.GL.Uniform1(location, value);
         }
     }
 }

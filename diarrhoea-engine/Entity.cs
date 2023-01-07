@@ -66,16 +66,16 @@ namespace DiarrhoeaEngine
             // --- ------- --- //
 
             // --- SHADER --- //
-            Program.shader.LoadProgram(shader);
+            Shader program = Program.shader.LoadProgram(shader);
             Program.shader.ActivateShaderProgram(shader);
             // --- ------ --- //
 
             // --- TEXTURE --- //
-            Program.shader.SetInt("default", "texture1", 0); 
-            Program.shader.SetInt("default", "texture2", 1);
+            program.SetInt("texture1", 0); 
+            program.SetInt("texture2", 1);
 
             // --- VERTICES --- //
-            uint vertexLocation = (uint)Program.GL.GetAttribLocation(Program.shader.active, "aPosition");
+            uint vertexLocation = (uint)Program.GL.GetAttribLocation(program.id, "aPosition");
             Program.GL.VertexAttribPointer(vertexLocation, 3, GLEnum.Float, false, 0, null);
             Program.GL.EnableVertexAttribArray(vertexLocation);
             // --- -------- --- //
@@ -85,7 +85,7 @@ namespace DiarrhoeaEngine
             Program.GL.BindBuffer(GLEnum.ArrayBuffer, _colorBufferObject);
             Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.texture.AsSpan(), GLEnum.StaticDraw);
 
-            uint textureLocation = (uint)Program.GL.GetAttribLocation(Program.shader.active, "aTexCoord");
+            uint textureLocation = (uint)Program.GL.GetAttribLocation(program.id, "aTexCoord");
             Program.GL.VertexAttribPointer(textureLocation, 2, GLEnum.Float, false, 0, null);
             Program.GL.EnableVertexAttribArray(textureLocation);
             // --- ------- --- //
@@ -97,6 +97,7 @@ namespace DiarrhoeaEngine
             texture2.Use(TextureUnit.Texture1);
 
             Program.shader.ActivateShaderProgram(shader);
+
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
         }
