@@ -35,6 +35,7 @@ namespace DiarrhoeaEngine
         {
             Vector2 delta = lastPosition - current;
             RotateCam(-delta.X);
+            YawCam(-delta.Y);
             lastPosition = current;
         }
 
@@ -46,6 +47,13 @@ namespace DiarrhoeaEngine
         private void RotateCam(float delta)
         {
             Program.camera.rotation += (delta) / (float)Program.window.FramesPerSecond;
+        }
+
+        private void YawCam(float delta)
+        {
+            Program.camera.yaw += (delta) / (float)Program.window.FramesPerSecond;
+            if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
+            else if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
         }
 
         private void ZoomCam(float delta)
@@ -93,6 +101,18 @@ namespace DiarrhoeaEngine
                         {
                             Program.camera.rotation += 45.0f / (float)Program.window.FramesPerSecond;
                             if (Program.camera.rotation >= 360.0f) Program.camera.rotation = 0.0f;
+                        }
+                        break;
+                    case Key.Up:
+                        { 
+                            Program.camera.yaw -= 25.0f / (float)Program.window.FramesPerSecond;
+                            if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
+                        }
+                        break;
+                    case Key.Down:
+                        {
+                            Program.camera.yaw += 25.0f / (float)Program.window.FramesPerSecond;
+                            if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
                         }
                         break;
                     case Key.Escape:

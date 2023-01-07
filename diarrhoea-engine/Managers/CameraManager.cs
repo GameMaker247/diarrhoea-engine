@@ -16,6 +16,7 @@ namespace DiarrhoeaEngine
 
         public Vector3D<float> position = new Vector3D<float>(0.0f, -1.0f, -3.0f);
         public float rotation = 0.0f;
+        public float yaw = 0.0f;
         public float FOV = 90.0f;
 
         public unsafe void Render()

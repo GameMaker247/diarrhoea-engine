@@ -70,7 +70,7 @@ namespace DiarrhoeaEngine
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
-            _view = Matrix4X4.CreateTranslation<float>(camera.position) * Matrix4X4.CreateRotationY<float>((float)Math.PI / 180 * camera.rotation);
+            _view = Matrix4X4.CreateTranslation<float>(camera.position) * Matrix4X4.CreateRotationY<float>((float)Math.PI / 180 * camera.rotation) * Matrix4X4.CreateRotationX<float>((float)Math.PI / 180 * camera.yaw);
             _projection = Matrix4X4.CreatePerspectiveFieldOfView<float>(((float)Math.PI / 180) * camera.FOV, Program.GetWindowSize().X / Program.GetWindowSize().Y, 0.001f, 1000.0f);
 
             camera.Render();
