@@ -12,7 +12,7 @@ namespace DiarrhoeaEngine
             return shaders[(int)_active];
         }
 
-        public void ActivateShaderProgram(string title)
+        public Shader ActivateShaderProgram(string title)
         {
             Shader? shader = shaders.Find(x => x.name == title);
             if (shader == null) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
@@ -20,6 +20,7 @@ namespace DiarrhoeaEngine
             Program.GL.UseProgram(0);
             Program.GL.UseProgram(shader.id);
             _active = (uint)shaders.IndexOf(shader);
+            return shader;
         }
 
         public Shader LoadProgram(string title="default")

@@ -1,14 +1,5 @@
-﻿using DiarrhoeaEngine;
-using Silk.NET.Maths;
+﻿using Silk.NET.Maths;
 using Silk.NET.OpenGL;
-using Silk.NET.SDL;
-using System;
-using System.Collections.Generic;
-using System.Drawing;
-using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DiarrhoeaEngine
 {
@@ -93,10 +84,16 @@ namespace DiarrhoeaEngine
 
         public unsafe void Draw()
         {
+            var rotation = Matrix4X4.CreateRotationZ<float>(((float)Math.PI/180)*20.0f);
+            var scale = Matrix4X4.CreateScale<float>(0.5f, 0.5f, 0.5f);
+            var trans = rotation * scale;
+            
+
             texture.Use();
             texture2.Use(TextureUnit.Texture1);
 
-            Program.shader.ActivateShaderProgram(shader);
+            Program.shader.ActivateShaderProgram(shader).SetMatrix4("transform", trans);
+            //Program.shader.GetActive().SetMatrix4("transform", transform);
 
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);

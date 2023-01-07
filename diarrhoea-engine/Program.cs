@@ -2,7 +2,6 @@
 using Silk.NET.Windowing;
 using Silk.NET.Maths;
 using Silk.NET.Input;
-using System.Numerics;
 using System.Drawing;
 
 namespace DiarrhoeaEngine
