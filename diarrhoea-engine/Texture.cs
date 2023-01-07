@@ -1,0 +1,37 @@
+﻿using Silk.NET.OpenGL;
+using System.Drawing.Imaging;
+using System.Drawing;
+
+namespace DiarrhoeaEngine
+{
+    public class Texture
+    {
+        public uint id;
+
+        public unsafe Texture(string src)
+        {
+            Bitmap bmp = new Bitmap(src);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+                  
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
+
+            id = Program.GL.GenTexture();
+            Program.GL.BindTexture(TextureTarget.Texture2D, id);
+            Program.GL.TexImage2D(TextureTarget.Texture2D, 0, (int)Silk.NET.OpenGL.PixelFormat.Rgba, (uint)data.Width, (uint)data.Height, 0, GLEnum.Bgra, GLEnum.UnsignedByte, (void*)data.Scan0);
+
+            Program.GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapS, (int)TextureWrapMode.ClampToEdge);
+            Program.GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureWrapT, (int)TextureWrapMode.ClampToEdge);
+
+            Program.GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Linear);
+            Program.GL.TexParameter(TextureTarget.Texture2D, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+
+            Program.GL.GenerateTextureMipmap(id);
+            bmp.Dispose();
+        }
+
+        public unsafe void Use()
+        {
+            Program.GL.BindTexture(GLEnum.Texture2D, id);
+        }
+    }
+}
