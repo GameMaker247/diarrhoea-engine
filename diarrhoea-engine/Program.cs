@@ -21,6 +21,9 @@ namespace DiarrhoeaEngine
             return window.Size;
         }
 
+        public static Matrix4X4<float> _view;
+        public static Matrix4X4<float> _projection;
+
         private static unsafe void Main(string[] args)
         {
             WindowOptions options = WindowOptions.Default;
@@ -44,15 +47,20 @@ namespace DiarrhoeaEngine
 
             GL.ClearColor(Color.Aqua);
             
-            GL.Enable(EnableCap.Blend);
+            GL.Enable(EnableCap.DepthTest);
+            GL.Enable(EnableCap.Blend); 
+
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
+
+            _view = Matrix4X4.CreateTranslation<float>(1.0f, -1.0f, -3.0f);
+            _projection = Matrix4X4.CreatePerspectiveFieldOfView<float>(((float)Math.PI / 180) * 90.0f, Program.GetWindowSize().X / Program.GetWindowSize().Y, 0.001f, 1000.0f);
 
             world.SpawnEntity("Player", Model.Square);
         }
 
         private static void OnRender(double obj)
         {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
 
             camera.Render();
             world.Render();

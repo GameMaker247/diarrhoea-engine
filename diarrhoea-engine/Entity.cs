@@ -36,7 +36,7 @@ namespace DiarrhoeaEngine
         private uint _colorBufferObject;
         private uint _vertexArrayObject;
         private uint _elementBufferObject;
-        
+
         private unsafe void Setup()
         {
             // --- OBJECT --- //
@@ -80,20 +80,22 @@ namespace DiarrhoeaEngine
             Program.GL.VertexAttribPointer(textureLocation, 2, GLEnum.Float, false, 0, null);
             Program.GL.EnableVertexAttribArray(textureLocation);
             // --- ------- --- //
+
+            Console.WriteLine($"Width: {Program.GetWindowSize().X}, Height: {Program.GetWindowSize().Y}, Ratio: {Program.GetWindowSize().X / Program.GetWindowSize().Y}");
         }
 
         public unsafe void Draw()
         {
-            var rotation = Matrix4X4.CreateRotationZ<float>(((float)Math.PI/180)*20.0f);
-            var scale = Matrix4X4.CreateScale<float>(0.5f, 0.5f, 0.5f);
-            var trans = rotation * scale;
-            
-
             texture.Use();
             texture2.Use(TextureUnit.Texture1);
 
-            Program.shader.ActivateShaderProgram(shader).SetMatrix4("transform", trans);
-            //Program.shader.GetActive().SetMatrix4("transform", transform);
+            Shader program = Program.shader.ActivateShaderProgram(shader);
+
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -55.0f);
+
+            program.SetMatrix4("model", _model);
+            program.SetMatrix4("view", Program._view);
+            program.SetMatrix4("projection", Program._projection);
 
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
