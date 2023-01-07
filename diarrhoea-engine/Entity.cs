@@ -13,9 +13,10 @@ namespace DiarrhoeaEngine
         private Texture texture2;
 
         public Vector3D<float> position { get; private set; }
-        public Quaternion<float> rotation { get; private set; } = Quaternion<float>.Identity;
+        public Vector3D<float> rotation { get; private set; }
+        public float scale { get; private set; }
         
-        public Entity(string name, Model model, string texture, string shader="default", Vector3D<float>? position = null)
+        public Entity(string name, Model model, string texture, string shader="default", Vector3D<float>? position = null, Vector3D<float>? rotation = null, float scale = 0.0f)
         {
             this.name = name;
             this.model = model;
@@ -23,6 +24,10 @@ namespace DiarrhoeaEngine
 
             if (position == null) this.position = Vector3D<float>.Zero;
             else this.position = (Vector3D<float>)position;
+
+            if (rotation == null) this.rotation = Vector3D<float>.Zero;
+            else this.rotation = (Vector3D<float>)rotation;
+            this.scale = scale;
 
             this.texture = Program.shader.CreateTexture(texture);
             this.texture2 = Program.shader.CreateTexture("../../../Images/bean.png");
@@ -65,8 +70,8 @@ namespace DiarrhoeaEngine
             // --- ------ --- //
 
             // --- TEXTURE --- //
-            program.SetInt("texture1", 0); 
-            program.SetInt("texture2", 1);
+            program.SetInt("texture0", 0); 
+            program.SetInt("texture1", 1);
 
             // --- VERTICES --- //
             uint vertexLocation = (uint)Program.GL.GetAttribLocation(program.id, "aPosition");
@@ -89,12 +94,15 @@ namespace DiarrhoeaEngine
 
         public unsafe void Draw()
         {
-            texture.Use();
+            texture.Use(TextureUnit.Texture0);
             texture2.Use(TextureUnit.Texture1);
 
-            Shader program = Program.shader.ActivateShaderProgram(shader);
+            Shader program = Program.shader.ActivateShaderProgram(shader); //
 
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateTranslation<float>(position) * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -90.0f) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * 45.0f) * Matrix4X4.CreateScale<float>(0.25f);
+            var _rotation = Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * rotation.Z);
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(scale) * Matrix4X4.CreateTranslation<float>(position) * _rotation;
+
+            program.SetFloat("fade", Program.loop);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);

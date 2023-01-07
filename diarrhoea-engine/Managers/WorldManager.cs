@@ -12,9 +12,9 @@ namespace DiarrhoeaEngine
     {
         public List<Entity> entities = new List<Entity>(); //Includes players, NPCs and world objects (Doesn't include Tiles)
 
-        public void SpawnEntity(string name, Model model, Vector3D<float>? position=null)
+        public void SpawnEntity(Entity entity)
         {
-            entities.Add(new Entity(name, model, "../../../Images/retard.png", position: position));
+            entities.Add(entity);
         }
 
         public void Render()

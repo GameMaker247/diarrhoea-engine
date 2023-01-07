@@ -59,12 +59,11 @@ namespace DiarrhoeaEngine
             {
                 for (int z = -10; z < 10; z++)
                 {
-                    world.SpawnEntity("Player", Model.Square, position: new Vector3D<float>(x, z, 0));
+                    world.SpawnEntity(new Entity("Player", Model.Square, "../../../Images/retard.png", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 0.0f), scale: 1.0f));
                 }
             }
 
-            
-            //world.SpawnEntity("Player", Model.Square);
+            world.SpawnEntity(new Entity("Mr. Bean", Model.Square, "../../../Images/bean.png", position: new Vector3D<float>(0.0f, 12.0f, 36.0f), rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
         }
 
         private static void OnRender(double obj)

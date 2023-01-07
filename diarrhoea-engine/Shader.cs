@@ -20,6 +20,12 @@ namespace DiarrhoeaEngine
             this.name = name;
         }
 
+        public void SetFloat(string name, float value) 
+        {
+            int location = Program.GL.GetUniformLocation(id, name);
+            Program.GL.Uniform1(location, value);
+        }
+
         public void SetInt(string name, int value)
         {
             int location = Program.GL.GetUniformLocation(id, name);

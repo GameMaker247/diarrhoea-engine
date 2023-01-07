@@ -56,6 +56,10 @@ namespace DiarrhoeaEngine
             //Top
             7, 4, 0, //need to check
             4, 2, 0, //this because i dk
+
+            //Bottom
+            6, 5, 2,
+            5, 
             //Front
             0, 1, 3,
             1, 2, 3,
