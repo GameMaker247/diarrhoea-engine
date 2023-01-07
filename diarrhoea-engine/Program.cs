@@ -52,7 +52,7 @@ namespace DiarrhoeaEngine
 
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
 
-            _view = Matrix4X4.CreateTranslation<float>(1.0f, -1.0f, -3.0f);
+            _view = Matrix4X4.CreateTranslation<float>(camera.position);
             _projection = Matrix4X4.CreatePerspectiveFieldOfView<float>(((float)Math.PI / 180) * 90.0f, Program.GetWindowSize().X / Program.GetWindowSize().Y, 0.001f, 1000.0f);
 
             world.SpawnEntity("Player", Model.Square);
@@ -61,6 +61,9 @@ namespace DiarrhoeaEngine
         private static void OnRender(double obj)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
+
+            _view = Matrix4X4.CreateTranslation<float>(camera.position);
+            _projection = Matrix4X4.CreatePerspectiveFieldOfView<float>(((float)Math.PI / 180) * 90.0f, Program.GetWindowSize().X / Program.GetWindowSize().Y, 0.001f, 1000.0f);
 
             camera.Render();
             world.Render();
@@ -73,9 +76,34 @@ namespace DiarrhoeaEngine
 
         private static void OnUpdate(double obj)
         {
-            controls.Update();
-
-            if(up)
+            //controls.Update();
+            controls.keysPressed.ForEach(x =>
+            {
+                switch (x)
+                {
+                    case Key.W:
+                        {
+                            Program.camera.position += new Vector3D<float>(0, 0, 1.0f / (float)window.FramesPerSecond);
+                        };
+                        break;
+                    case Key.A:
+                        {
+                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(1.0f / (float)window.FramesPerSecond, 0, 0);
+                        };
+                        break;
+                    case Key.S:
+                        {
+                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(0, 0, -1.0f / (float)window.FramesPerSecond);
+                        };
+                        break;
+                    case Key.D:
+                        {
+                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(-1.0f / (float)window.FramesPerSecond, 0, 0);
+                        };
+                        break;
+                }
+            });
+            if (up)
             {
                 loop += 1.0f / (float)window.FramesPerSecond;
                 if (loop >= 1.0f) up = false;

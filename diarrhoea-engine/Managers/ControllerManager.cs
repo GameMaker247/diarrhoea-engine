@@ -9,7 +9,7 @@ namespace DiarrhoeaEngine
 {
     public class ControllerManager
     {
-        private static List<Key> keysPressed = new List<Key>();
+        public List<Key> keysPressed = new List<Key>();
         public bool IsKeyPressed(Key key) { return keysPressed.Contains(key); }
 
         public ControllerManager(IInputContext ctx) 

@@ -1,4 +1,5 @@
-﻿using Silk.NET.OpenGL;
+﻿using Silk.NET.Maths;
+using Silk.NET.OpenGL;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -12,6 +13,8 @@ namespace DiarrhoeaEngine
     {
         private Camera active;
         private List<Camera> cameras = new List<Camera>();
+
+        public Vector3D<float> position = new Vector3D<float>(0.0f, -1.0f, -3.0f);
 
         public unsafe void Render()
         {
