@@ -7,12 +7,12 @@ using System.Threading.Tasks;
 
 namespace DiarrhoeaEngine
 {
-    public class Controls
+    public class ControllerManager
     {
-        private static List<Key> keysPressed = new List<Key>();
+        public List<Key> keysPressed = new List<Key>();
         public bool IsKeyPressed(Key key) { return keysPressed.Contains(key); }
 
-        public Controls(IInputContext ctx) 
+        public ControllerManager(IInputContext ctx) 
         {
             ctx.Mice[0].Click += OnMouseClick;
             ctx.Keyboards[0].KeyDown += (_, key, _) => keysPressed?.Add(key);

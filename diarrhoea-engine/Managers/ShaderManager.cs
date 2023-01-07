@@ -4,26 +4,28 @@ namespace DiarrhoeaEngine
 {
     public class ShaderManager
     {
-        private Dictionary<string, uint> shaders = new Dictionary<string, uint>();
-        public uint active { get; private set; }
+        private List<Shader> shaders = new List<Shader>();
+        private uint _active = 0;
 
-        public void ActivateShaderProgram(string title)
+        public Shader GetActive()
         {
-            if (!shaders.ContainsKey(title)) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
+            return shaders[(int)_active];
+        }
+
+        public Shader ActivateShaderProgram(string title)
+        {
+            Shader? shader = shaders.Find(x => x.name == title);
+            if (shader == null) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
 
             Program.GL.UseProgram(0);
-            Program.GL.UseProgram(shaders[title]);
-            active = shaders[title];
+            Program.GL.UseProgram(shader.id);
+            _active = (uint)shaders.IndexOf(shader);
+            return shader;
         }
 
-        public bool HasLoadedProgram(string title)
+        public Shader LoadProgram(string title="default")
         {
-            return shaders.ContainsKey(title);
-        }
-
-        public void LoadProgram(string title="default")
-        {
-            if (shaders.ContainsKey(title)) return;
+            if (shaders.Exists(x => x.name == title)) return shaders.Find(x => x.name == title);
 
             uint program = Program.GL.CreateProgram();
 
@@ -42,7 +44,9 @@ namespace DiarrhoeaEngine
             string info = Program.GL.GetProgramInfoLog(program);
             if (!string.IsNullOrEmpty(info)) throw new Exception(info);
 
-            shaders.Add(title, program);
+            Shader result = new Shader(program, title);
+            shaders.Add(result);
+            return result;
         }
 
         private uint LoadShader(string title, ShaderType type)
@@ -67,8 +71,7 @@ namespace DiarrhoeaEngine
             string info = Program.GL.GetShaderInfoLog(id);
             if (!string.IsNullOrEmpty(info)) throw new Exception(info);
 
-            return id;
-            
+            return id; 
         }
     }
 }
