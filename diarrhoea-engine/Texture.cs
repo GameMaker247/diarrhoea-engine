@@ -7,10 +7,13 @@ namespace DiarrhoeaEngine
     public class Texture
     {
         public uint id;
+        public string src { get; private set; }
 
         public unsafe Texture(string src)
         {
             Bitmap bmp = new Bitmap(src);
+            this.src = src;
+
             bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
                   
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);

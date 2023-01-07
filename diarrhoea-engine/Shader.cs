@@ -12,6 +12,7 @@ namespace DiarrhoeaEngine
     {
         public uint id { get; private set; }
         public string name { get; private set; }
+        public List<Texture> textures { get; private set; }
 
         public Shader(uint id, string name)
         {

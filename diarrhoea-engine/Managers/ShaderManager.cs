@@ -5,11 +5,22 @@ namespace DiarrhoeaEngine
     public class ShaderManager
     {
         private List<Shader> shaders = new List<Shader>();
+        private List<Texture> textures = new List<Texture>();
+
         private uint _active = 0;
 
         public Shader GetActive()
         {
             return shaders[(int)_active];
+        }
+
+        public Texture CreateTexture(string src)
+        {
+            if(textures.Find(x => x.src == src) != null) return textures.Find(x => x.src == src);
+
+            Texture result = new Texture(src);
+            textures?.Add(result);
+            return result;
         }
 
         public Shader ActivateShaderProgram(string title)

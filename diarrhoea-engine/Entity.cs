@@ -12,17 +12,20 @@ namespace DiarrhoeaEngine
         private Texture texture;
         private Texture texture2;
 
-        public Vector3D<float> position { get; private set; } = Vector3D<float>.Zero;
+        public Vector3D<float> position { get; private set; }
         public Quaternion<float> rotation { get; private set; } = Quaternion<float>.Identity;
         
-        public Entity(string name, Model model, string texture, string shader="default")
+        public Entity(string name, Model model, string texture, string shader="default", Vector3D<float>? position = null)
         {
             this.name = name;
             this.model = model;
             this.shader = shader;
 
-            this.texture = new Texture(texture);
-            this.texture2 = new Texture("../../../Images/bean.png");
+            if (position == null) this.position = Vector3D<float>.Zero;
+            else this.position = (Vector3D<float>)position;
+
+            this.texture = Program.shader.CreateTexture(texture);
+            this.texture2 = Program.shader.CreateTexture("../../../Images/bean.png");
 
             Setup();
         }
@@ -91,7 +94,7 @@ namespace DiarrhoeaEngine
 
             Shader program = Program.shader.ActivateShaderProgram(shader);
 
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -55.0f) * Matrix4X4.CreateScale<float>(2.5f);
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateTranslation<float>(position) * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -90.0f) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * 45.0f) * Matrix4X4.CreateScale<float>(0.25f);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);
