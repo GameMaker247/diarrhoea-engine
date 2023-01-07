@@ -10,10 +10,8 @@ namespace DiarrhoeaEngine
 {
     public class CameraManager
     {
-        private Matrix4x4 position; 
-        private Matrix4x4 rotation;
-
-        public bool enabled { get; private set; } = true;
+        private Camera active;
+        private List<Camera> cameras = new List<Camera>();
 
         public unsafe void Render()
         {

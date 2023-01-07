@@ -29,8 +29,9 @@ namespace DiarrhoeaEngine
             bmp.Dispose();
         }
 
-        public unsafe void Use()
+        public unsafe void Use(TextureUnit unit = TextureUnit.Texture0)
         {
+            Program.GL.ActiveTexture(unit);
             Program.GL.BindTexture(GLEnum.Texture2D, id);
         }
     }

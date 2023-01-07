@@ -13,7 +13,7 @@ namespace DiarrhoeaEngine
         public static CameraManager camera = new CameraManager();
         public static WorldManager world = new WorldManager();
         
-        public static Controls controls;
+        public static ControllerManager controls;
         public static GL GL;
 
         private static IWindow window;
@@ -40,7 +40,7 @@ namespace DiarrhoeaEngine
         }
         private static void OnLoad()
         {
-            controls = new Controls(window.CreateInput());
+            controls = new ControllerManager(window.CreateInput());
             GL = window.CreateOpenGL();
 
             GL.ClearColor(Color.Aqua);

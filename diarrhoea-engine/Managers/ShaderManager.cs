@@ -67,8 +67,13 @@ namespace DiarrhoeaEngine
             string info = Program.GL.GetShaderInfoLog(id);
             if (!string.IsNullOrEmpty(info)) throw new Exception(info);
 
-            return id;
-            
+            return id; 
+        }
+
+        public void SetInt(string shader, string name, int value)
+        {
+            int location = Program.GL.GetUniformLocation(shaders[shader], name);
+            Program.GL.Uniform1(location, value);
         }
     }
 }

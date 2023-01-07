@@ -19,7 +19,8 @@ namespace DiarrhoeaEngine
         public string shader;
 
         private Texture texture;
- 
+        private Texture texture2;
+
         public Vector3D<float> position { get; private set; } = Vector3D<float>.Zero;
         public Quaternion<float> rotation { get; private set; } = Quaternion<float>.Identity;
         
@@ -28,8 +29,10 @@ namespace DiarrhoeaEngine
             this.name = name;
             this.model = model;
             this.shader = shader;
+
             this.texture = new Texture(texture);
-           
+            this.texture2 = new Texture("../../../Images/bean.png");
+
             Setup();
         }
 
@@ -54,26 +57,30 @@ namespace DiarrhoeaEngine
             _vertexBufferObject = Program.GL.GenBuffer();
             Program.GL.BindBuffer(GLEnum.ArrayBuffer, _vertexBufferObject);
             Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.vertices.AsSpan(), GLEnum.StaticDraw);
+            // --- -------- --- //
 
+            // --- INDICES --- //
             _elementBufferObject = Program.GL.GenBuffer();
             Program.GL.BindBuffer(GLEnum.ElementArrayBuffer, _elementBufferObject);
             Program.GL.BufferData(GLEnum.ElementArrayBuffer, (ReadOnlySpan<uint>)model.indices.AsSpan(), GLEnum.StaticDraw);
+            // --- ------- --- //
 
+            // --- SHADER --- //
             Program.shader.LoadProgram(shader);
             Program.shader.ActivateShaderProgram(shader);
-
-            //Program.GL.VertexAttribPointer(0, 3, GLEnum.Float, false, 0, null);
-            //Program.GL.EnableVertexAttribArray(0);
-            // --- -------- --- //
-
+            // --- ------ --- //
 
             // --- TEXTURE --- //
+            Program.shader.SetInt("default", "texture1", 0); 
+            Program.shader.SetInt("default", "texture2", 1);
 
-
+            // --- VERTICES --- //
             uint vertexLocation = (uint)Program.GL.GetAttribLocation(Program.shader.active, "aPosition");
             Program.GL.VertexAttribPointer(vertexLocation, 3, GLEnum.Float, false, 0, null);
             Program.GL.EnableVertexAttribArray(vertexLocation);
+            // --- -------- --- //
 
+            // --- TEXTURE --- //
             _colorBufferObject = Program.GL.GenBuffer();
             Program.GL.BindBuffer(GLEnum.ArrayBuffer, _colorBufferObject);
             Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.texture.AsSpan(), GLEnum.StaticDraw);
@@ -81,35 +88,14 @@ namespace DiarrhoeaEngine
             uint textureLocation = (uint)Program.GL.GetAttribLocation(Program.shader.active, "aTexCoord");
             Program.GL.VertexAttribPointer(textureLocation, 2, GLEnum.Float, false, 0, null);
             Program.GL.EnableVertexAttribArray(textureLocation);
-
-            texture.Use();
             // --- ------- --- //
-
-            /*
-            // --- COLOURS --- //
-            _colorBufferObject = Program.GL.GenBuffer();
-            Program.GL.BindBuffer(GLEnum.ArrayBuffer, _colorBufferObject);
-            Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.texture.AsSpan(), GLEnum.StaticDraw);
-
-            Program.GL.VertexAttribPointer(1, 3, GLEnum.Float, false, 0, null);
-            Program.GL.EnableVertexAttribArray(1);
-            // --- ------- --- //
-            */
-
-            // --- INDICES --- //
-            //_elementBufferObject = Program.GL.GenBuffer();
-            //Program.GL.BindBuffer(GLEnum.ElementArrayBuffer, _elementBufferObject);
-            //Program.GL.BufferData(GLEnum.ElementArrayBuffer, (ReadOnlySpan<uint>)model.indices.AsSpan(), GLEnum.StaticDraw);
-            // --- ------- --- //
-
-
-
-
         }
 
         public unsafe void Draw()
         {
             texture.Use();
+            texture2.Use(TextureUnit.Texture1);
+
             Program.shader.ActivateShaderProgram(shader);
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
