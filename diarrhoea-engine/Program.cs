@@ -88,17 +88,17 @@ namespace DiarrhoeaEngine
                         break;
                     case Key.A:
                         {
-                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(1.0f / (float)window.FramesPerSecond, 0, 0);
+                            Program.camera.position += new Vector3D<float>(1.0f / (float)window.FramesPerSecond, 0, 0);
                         };
                         break;
                     case Key.S:
                         {
-                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(0, 0, -1.0f / (float)window.FramesPerSecond);
+                            Program.camera.position += new Vector3D<float>(0, 0, -1.0f / (float)window.FramesPerSecond);
                         };
                         break;
                     case Key.D:
                         {
-                            Program.camera.position += new Silk.NET.Maths.Vector3D<float>(-1.0f / (float)window.FramesPerSecond, 0, 0);
+                            Program.camera.position += new Vector3D<float>(-1.0f / (float)window.FramesPerSecond, 0, 0);
                         };
                         break;
                 }

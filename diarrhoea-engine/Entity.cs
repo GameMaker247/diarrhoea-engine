@@ -91,7 +91,7 @@ namespace DiarrhoeaEngine
 
             Shader program = Program.shader.ActivateShaderProgram(shader);
 
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -55.0f);
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -55.0f) * Matrix4X4.CreateScale<float>(2.5f);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);
