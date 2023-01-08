@@ -14,15 +14,33 @@ namespace DiarrhoeaEngine
         private Camera active;
         private List<Camera> cameras = new List<Camera>();
 
-        public Vector3D<float> position = new Vector3D<float>(0.0f, -1.0f, -3.0f);
-
-        public unsafe void Render()
+        public CameraManager(Camera initial)
         {
-            //int location = (int)Program.GL.GetUniformLocation(Program.shader.active, "projection");
+            active = initial;
+            cameras.Add(active);
+        }
 
-            //Matrix4x4 projection = Matrix4x4.CreatePerspectiveFieldOfView((float)(Math.PI/180)*60.0f, (float)Program.GetWindowSize().X / (float)Program.GetWindowSize().Y, 0.0001f, 5000.0f);
+        public void Enable(Type type)
+        {
+            Camera enable = cameras.Find(x => x.GetType() == type);
+            if (enable == null) return;
 
-            //Program.GL.UniformMatrix4(location, 1, false, (double*)&projection);
+            active = enable;
+        }
+
+        public void Create(Camera camera) 
+        { 
+            cameras.Add(camera);
+        }
+
+        public void Update()
+        {
+
+        }
+
+        public void Render()
+        {
+
         }
     }
 }

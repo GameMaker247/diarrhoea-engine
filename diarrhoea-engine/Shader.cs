@@ -12,11 +12,18 @@ namespace DiarrhoeaEngine
     {
         public uint id { get; private set; }
         public string name { get; private set; }
+        public List<Texture> textures { get; private set; }
 
         public Shader(uint id, string name)
         {
             this.id = id;
             this.name = name;
+        }
+
+        public void SetFloat(string name, float value) 
+        {
+            int location = Program.GL.GetUniformLocation(id, name);
+            Program.GL.Uniform1(location, value);
         }
 
         public void SetInt(string name, int value)

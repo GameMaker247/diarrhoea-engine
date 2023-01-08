@@ -21,23 +21,58 @@ namespace DiarrhoeaEngine
         }
 
         public static Model Square = new Model(new float[]
-            {                
-                0.5f, 0.5f, 0.0f,       // top-right
-                0.5f, -0.5f, 0.0f,      // bottom-right
-                -0.5f, -0.5f, 0.0f,     // bottom-left
-                -0.5f, 0.5f, 0.0f       // top-left
-            },
-            new uint[]
-            {
-                0, 1, 3,
-                1, 2, 3
-            },
-            new float[]
-            {
-                1.0f, 1.0f,            // top-right corner
-                1.0f, 0.0f,            // bottom-right corner
-                0.0f, 0.0f,            // bottom-left corner
-                0.0f, 1.0f             // top-left corner
-            });
+        {                
+            0.5f, 0.5f, 0.0f,       // top-right
+            0.5f, -0.5f, 0.0f,      // bottom-right
+            -0.5f, -0.5f, 0.0f,     // bottom-left
+            -0.5f, 0.5f, 0.0f       // top-left
+        },
+        new uint[]
+        {
+            0, 1, 3,
+            1, 2, 3
+        },
+        new float[]
+        {
+            1.0f, 1.0f,            // top-right corner
+            1.0f, 0.0f,            // bottom-right corner
+            0.0f, 0.0f,            // bottom-left corner
+            0.0f, 1.0f             // top-left corner
+        });
+
+        public static Model Cube = new Model(new float[]
+        {
+            0.5f, 0.5f, 0.5f,        // top-right-front
+            0.5f, -0.5f, 0.5f,       // bottom-right-front
+            -0.5f, -0.5f, 0.5f,      // bottom-left-front
+            -0.5f, 0.5f, 0.5f,       // top-left-front
+            0.5f, 0.5f, -0.5f,       // top-right-back
+            0.5f, -0.5f, -0.5f,      // bottom-right-back
+            -0.5f, -0.5f, -0.5f,     // bottom-left-back
+            -0.5f, 0.5f, -0.5f       // top-left-back
+        },
+        new uint[]
+        {
+            //Top
+            7, 4, 0, //need to check
+            4, 2, 0, //this because i dk
+
+            //Bottom
+            6, 5, 2,
+            5, 
+            //Front
+            0, 1, 3,
+            1, 2, 3,
+
+            //Back
+
+        },
+        new float[]
+        {
+            1.0f, 1.0f,            // top-right corner
+            1.0f, 0.0f,            // bottom-right corner
+            0.0f, 0.0f,            // bottom-left corner
+            0.0f, 1.0f             // top-left corner
+        });
     }
 }

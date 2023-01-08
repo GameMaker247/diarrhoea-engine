@@ -9,20 +9,31 @@ namespace DiarrhoeaEngine
         public Model model { get; private set; }
         public string shader;
 
-        private Texture texture;
-        private Texture texture2;
+        private List<Texture> textures = new List<Texture>();
 
-        public Vector3D<float> position { get; private set; } = Vector3D<float>.Zero;
-        public Quaternion<float> rotation { get; private set; } = Quaternion<float>.Identity;
-        
-        public Entity(string name, Model model, string texture, string shader="default")
+        public Vector3D<float> position; //{ get; private set; }
+        public Vector3D<float> rotation { get; private set; }
+        public float scale { get; private set; }
+
+        private bool debug = false;
+
+        public Entity(string name, Model model, string shader="default", bool debug=false, string[] textures = null, Vector3D<float>? position = null, Vector3D<float>? rotation = null, float scale = 0.0f)
         {
             this.name = name;
             this.model = model;
             this.shader = shader;
 
-            this.texture = new Texture(texture);
-            this.texture2 = new Texture("../../../Images/bean.png");
+            if (position == null) this.position = Vector3D<float>.Zero;
+            else this.position = (Vector3D<float>)position;
+
+            if (rotation == null) this.rotation = Vector3D<float>.Zero;
+            else this.rotation = (Vector3D<float>)rotation;
+            this.scale = scale;
+            this.debug = debug;
+            foreach(string tex in textures)
+            {
+                this.textures.Add(Program.shader.CreateTexture(tex));
+            }
 
             Setup();
         }
@@ -62,8 +73,11 @@ namespace DiarrhoeaEngine
             // --- ------ --- //
 
             // --- TEXTURE --- //
-            program.SetInt("texture1", 0); 
-            program.SetInt("texture2", 1);
+            for(uint i = 0; i < textures.Count; i++) 
+            {
+                program.SetInt($"texture{i}", (int)i);
+            }
+            // --- ------- --- //
 
             // --- VERTICES --- //
             uint vertexLocation = (uint)Program.GL.GetAttribLocation(program.id, "aPosition");
@@ -81,17 +95,29 @@ namespace DiarrhoeaEngine
             Program.GL.EnableVertexAttribArray(textureLocation);
             // --- ------- --- //
 
-            Console.WriteLine($"Width: {Program.GetWindowSize().X}, Height: {Program.GetWindowSize().Y}, Ratio: {Program.GetWindowSize().X / Program.GetWindowSize().Y}");
+            //Console.WriteLine($"Width: {Program.GetWindowSize().X}, Height: {Program.GetWindowSize().Y}, Ratio: {Program.GetWindowSize().X / Program.GetWindowSize().Y}");
         }
 
         public unsafe void Draw()
         {
-            texture.Use();
-            texture2.Use(TextureUnit.Texture1);
+            for (int i = 0; i < textures.Count; i++)
+            {
+                textures[i].Use((TextureUnit)(TextureUnit.Texture0+i));
+            }
 
-            Shader program = Program.shader.ActivateShaderProgram(shader);
+            Shader program = Program.shader.ActivateShaderProgram(shader); //
 
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * -55.0f);
+            var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * rotation.Z));
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(scale) * Matrix4X4.CreateTranslation<float>(position) * _rotation;
+
+            /*
+            if(debug == true)
+            {
+                Console.Write($"{name}: ({position})\nCamera: ({Program.camera.Position})");
+            }
+            */
+
+            program.SetFloat("fade", Program.loop* Program.loop);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);
