@@ -15,9 +15,34 @@ namespace DiarrhoeaEngine
         private List<Camera> cameras = new List<Camera>();
 
         public Vector3D<float> position = new Vector3D<float>(0.0f, -1.0f, -3.0f);
-        public float rotation = 0.0f;
+        public Vector3D<float> direction = new Vector3D<float>(0.0f, 0.0f, 0.0f);
+        public Vector3D<float> right = new Vector3D<float>(0.0f, 0.0f, 0.0f);
+        public Vector3D<float> up = new Vector3D<float>( 0.0f, 0.0f, 0.0f );
+        public Vector3D<float> front = new Vector3D<float>(0.0f, 0.0f, 0.0f);
+
+        public float pitch = 0.0f;
         public float yaw = 0.0f;
+
+        //public float rotation = 0.0f;
+        //public float yaw = 0.0f;
         public float FOV = 90.0f;
+
+        public void Update()
+        {
+            Vector3D<float> target = Vector3D<float>.Zero;
+            direction = Vector3D.Normalize<float>(position - target);
+
+            Vector3D<float> _up = Vector3D<float>.UnitY;
+            right = Vector3D.Normalize<float>(Vector3D.Cross<float>(_up, direction));
+
+            up = Vector3D.Cross<float>(direction, right);
+
+            front.X = (float)Math.Cos(((float)Math.PI / 180) * pitch) * (float)Math.Cos(((float)Math.PI / 180) * yaw);
+            front.Y = (float)Math.Sin(((float)Math.PI / 180) * pitch);
+            front.Z = (float)Math.Cos(((float)Math.PI / 180) * pitch) * (float)Math.Sin(((float)Math.PI / 180) * yaw);
+
+            front = Vector3D.Normalize<float>(front);
+        }
 
         public unsafe void Render()
         {

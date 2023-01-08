@@ -33,37 +33,39 @@ namespace DiarrhoeaEngine
 
         private void OnMouseMove(IMouse mouse, Vector2 current)
         {
-            Vector2 delta = lastPosition - current;
-            RotateCam(-delta.X);
-            YawCam(-delta.Y);
+            Vector2 delta = current - lastPosition;
+            YawCam(delta.X);
+            PitchCam(-delta.Y);
             lastPosition = current;
         }
 
         private void OnMouseClick(IMouse mouse, MouseButton btn, System.Numerics.Vector2 arg3)
         {
-            Console.WriteLine($"CLICKED THE {btn} MOUSE BUTTON");
-        }
-
-        private void RotateCam(float delta)
-        {
-            Program.camera.rotation += (delta) / (float)Program.window.FramesPerSecond;
+            //Console.WriteLine($"CLICKED THE {btn} MOUSE BUTTON");
         }
 
         private void YawCam(float delta)
         {
-            Program.camera.yaw += (delta) / (float)Program.window.FramesPerSecond;
-            if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
-            else if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
+            Program.camera.Yaw += (delta) / (float)Program.window.FramesPerSecond;
+        }
+
+        private void PitchCam(float delta)
+        {
+            Program.camera.Pitch += (delta) / (float)Program.window.FramesPerSecond;
+            //if (Program.camera.pitch < -60.0f) Program.camera.pitch = -60.0f;
+            //else if (Program.camera.pitch > 60.0f) Program.camera.pitch = 60.0f;
         }
 
         private void ZoomCam(float delta)
         {
-            Program.camera.FOV += delta*30.0f/(float)Program.window.FramesPerSecond;
-            if (Program.camera.FOV < 30.0f) Program.camera.FOV = 30.0f;
-            else if (Program.camera.FOV > 130.0f) Program.camera.FOV = 130.0f;
+            //Program.camera.FOV += delta*30.0f/(float)Program.window.FramesPerSecond;
+            //if (Program.camera.FOV < 30.0f) Program.camera.FOV = 30.0f;
+            //else if (Program.camera.FOV > 130.0f) Program.camera.FOV = 130.0f;
 
-            Console.WriteLine(Program.camera.FOV);
+            //Console.WriteLine(Program.camera.FOV);
         }
+
+        private float speed = 6.0f;
 
         public void Update()
         {
@@ -73,51 +75,67 @@ namespace DiarrhoeaEngine
                 {
                     case Key.W:
                         {
-                            Program.camera.position += new Vector3D<float>(0, 0, 1.0f / (float)Program.window.FramesPerSecond);
+                            Program.camera.Position += Program.camera.Front * speed / (float)Program.window.FramesPerSecond;//+= new Vector3D<float>(0, 0, 1.0f / (float)Program.window.FramesPerSecond);
                         };
                         break;
                     case Key.A:
                         {
-                            Program.camera.position += new Vector3D<float>(1.0f / (float)Program.window.FramesPerSecond, 0, 0);
+                            //Program.camera.position += Program.camera.front * 6.0f / (float)Program.window.FramesPerSecond;
+                            Program.camera.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Front, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
+                            //Program.camera.position += new Vector3D<float>(1.0f / (float)Program.window.FramesPerSecond, 0, 0);
                         };
                         break;
                     case Key.S:
                         {
-                            Program.camera.position += new Vector3D<float>(0, 0, -1.0f / (float)Program.window.FramesPerSecond);
+                            Program.camera.Position -= Program.camera.Front * speed / (float)Program.window.FramesPerSecond;
+                            //Program.camera.position += new Vector3D<float>(0, 0, -1.0f / (float)Program.window.FramesPerSecond);
                         };
                         break;
                     case Key.D:
                         {
-                            Program.camera.position += new Vector3D<float>(-1.0f / (float)Program.window.FramesPerSecond, 0, 0);
+                            //Program.camera.position -= Program.camera.front * 6.0f / (float)Program.window.FramesPerSecond;
+                            Program.camera.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Front, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
+                            //Program.camera.position += new Vector3D<float>(-1.0f / (float)Program.window.FramesPerSecond, 0, 0);
                         };
                         break;
                     case Key.Q:
                         {
-                            Program.camera.rotation -= 45.0f / (float)Program.window.FramesPerSecond;
-                            if (Program.camera.rotation <= 0.0f) Program.camera.rotation = 360.0f;
+                            //Program.camera.rotation -= 45.0f / (float)Program.window.FramesPerSecond;
+                            //if (Program.camera.rotation <= 0.0f) Program.camera.rotation = 360.0f;
                         }
                         break;
                     case Key.E:
                         {
-                            Program.camera.rotation += 45.0f / (float)Program.window.FramesPerSecond;
-                            if (Program.camera.rotation >= 360.0f) Program.camera.rotation = 0.0f;
+                            //Program.camera.rotation += 45.0f / (float)Program.window.FramesPerSecond;
+                            //if (Program.camera.rotation >= 360.0f) Program.camera.rotation = 0.0f;
                         }
                         break;
                     case Key.Up:
                         { 
-                            Program.camera.yaw -= 25.0f / (float)Program.window.FramesPerSecond;
-                            if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
+                            //Program.camera.yaw -= 25.0f / (float)Program.window.FramesPerSecond;
+                            //if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
                         }
                         break;
                     case Key.Down:
                         {
-                            Program.camera.yaw += 25.0f / (float)Program.window.FramesPerSecond;
-                            if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
+                            //Program.camera.yaw += 25.0f / (float)Program.window.FramesPerSecond;
+                            //if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
                         }
                         break;
                     case Key.Escape:
                         {
                             Program.window.Close();
+                        }
+                        break;
+                    case Key.ShiftLeft:
+                        {
+                            if (speed == 6.0f) speed = 12.0f;
+                            else speed = 6.0f;
+                        }
+                        break;
+                    case Key.B: { 
+            //Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, "../../../Images/bean.png", position: new Vector3D<float>(Program.camera.position.X, Program.camera.position.Y, Program.camera.position.Z), rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
+                            
                         }
                         break;
                 }
