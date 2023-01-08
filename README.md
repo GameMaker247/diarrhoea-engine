@@ -1,6 +1,8 @@
 # Diarrhoea Engine
 
+## What is Diarrhoea Engine?
 
+Diarrhoea Engine is the staple of NemNem Networks future video game projects. You can already spawn [Mr Bean.](https://i.ndtvimg.com/i/2017-03/rowan-atkinson_640x480_71490079191.jpg)
 
 ## Getting started
 
