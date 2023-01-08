@@ -1,8 +1,55 @@
 ﻿using Silk.NET.Maths;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
 namespace DiarrhoeaEngine
 {
-    public class Camera
+    public class FPSCamera : Camera
     {
+        private float _FOV, _AspectRatio;
+
+        public FPSCamera(float _FOV, float _AspectRatio, Vector3D<float> Position) : base(Position)
+        {
+            this._FOV = _FOV;
+            this._AspectRatio = _AspectRatio;
+        }
+
+        public override Matrix4X4<float> GetProjectionMatrix()
+        {
+            return Matrix4X4.CreatePerspectiveFieldOfView<float>(MathHelper.Deg2Rad(_FOV), _AspectRatio, 0.01f, 100f);
+        }
+
+        public override Matrix4X4<float> GetViewMatrix()
+        {
+            return Matrix4X4.CreateLookAt<float>(Position, Position + Forward, Up);
+        }
+
+        public override void Zoom(float zoom)
+        {
+            _FOV = MathHelper.Clamp(_FOV+zoom, 10.0f, 120.0f);
+        }
+
+        public override void UpdateVectors()
+        {
+            // First, the front matrix is calculated using some basic trigonometry.
+            Forward.X = MathF.Cos(_pitch) * MathF.Cos(_yaw);
+            Forward.Y = MathF.Sin(_pitch);
+            Forward.Z = MathF.Cos(_pitch) * MathF.Sin(_yaw);
+
+            // We need to make sure the vectors are all normalized, as otherwise we would get some funky results.
+            Forward = Vector3D.Normalize(Forward);
+
+            // Calculate both the right and the up vector using cross product.
+            // Note that we are calculating the right from the global up; this behaviour might
+            // not be what you need for all cameras so keep this in mind if you do not want a FPS camera.
+            Right = Vector3D.Normalize(Vector3D.Cross(Forward, Vector3D<float>.UnitY));
+            Up = Vector3D.Normalize(Vector3D.Cross(Right, Forward));
+        }
+
+        /*
         // Those vectors are directions pointing outwards from the camera to define how it rotated.
         private Vector3D<float> _front = -Vector3D<float>.UnitZ;
 
@@ -19,7 +66,7 @@ namespace DiarrhoeaEngine
         // The field of view of the camera (radians)
         private float _fov = MathHelper.PiOver2;
 
-        public Camera(Vector3D<float> position, float aspectRatio)
+        public FPSCamera(Vector3D<float> position, float aspectRatio)
         {
             Position = position;
             AspectRatio = aspectRatio;
@@ -31,11 +78,11 @@ namespace DiarrhoeaEngine
         // This is simply the aspect ratio of the viewport, used for the projection matrix.
         public float AspectRatio { private get; set; }
 
-        public Vector3D<float> Front => _front;
+        public Vector3D<float> Front { get { return _front; } set { _front = value; } }
 
-        public Vector3D<float> Up => _up;
+        public Vector3D<float> Up { get { return _up; } set { _up = value; } }
 
-        public Vector3D<float> Right => _right;
+        public Vector3D<float> Right { get { return _right; } set { _right = value; } }
 
         // We convert from degrees to radians as soon as the property is set to improve performance.
         public float Pitch
@@ -67,10 +114,10 @@ namespace DiarrhoeaEngine
         // This has been discussed more in depth in a previous tutorial,
         // but in this tutorial, you have also learned how we can use this to simulate a zoom feature.
         // We convert from degrees to radians as soon as the property is set to improve performance.
-        public float Fov
+        public float FOV
         {
             get => MathHelper.Rad2Deg(_fov);
-            set
+            private set
             {
                 var angle = MathHelper.Clamp(value, 1f, 90f);
                 _fov = MathHelper.Deg2Rad(angle);
@@ -78,15 +125,20 @@ namespace DiarrhoeaEngine
         }
 
         // Get the view matrix using the amazing LookAt function described more in depth on the web tutorials
-        public Matrix4X4<float> GetViewMatrix()
+        public override Matrix4X4<float> GetViewMatrix()
         {
-            return Matrix4X4.CreateLookAt<float>(Position, Position + _front, _up);
+            return Matrix4X4.CreateLookAt<float>(Position, Position + Front, Up);
         }
 
         // Get the projection matrix using the same method we have used up until this point
-        public Matrix4X4<float> GetProjectionMatrix()
+        public override Matrix4X4<float> GetProjectionMatrix()
         {
-            return Matrix4X4.CreatePerspectiveFieldOfView<float>(_fov, AspectRatio, 0.01f, 100f);
+            return Matrix4X4.CreatePerspectiveFieldOfView<float>(FOV, AspectRatio, 0.01f, 100f);
+        }
+
+        public override void Zoom(float zoom)
+        {
+            FOV += zoom;
         }
 
         // This function is going to update the direction vertices using some of the math learned in the web tutorials.
@@ -106,5 +158,6 @@ namespace DiarrhoeaEngine
             _right = Vector3D.Normalize(Vector3D.Cross(_front, Vector3D<float>.UnitY));
             _up = Vector3D.Normalize(Vector3D.Cross(_right, _front));
         }
+        */
     }
 }

@@ -11,11 +11,13 @@ namespace DiarrhoeaEngine
 
         private List<Texture> textures = new List<Texture>();
 
-        public Vector3D<float> position { get; private set; }
+        public Vector3D<float> position; //{ get; private set; }
         public Vector3D<float> rotation { get; private set; }
         public float scale { get; private set; }
-        
-        public Entity(string name, Model model, string shader="default", string[] textures = null, Vector3D<float>? position = null, Vector3D<float>? rotation = null, float scale = 0.0f)
+
+        private bool debug = false;
+
+        public Entity(string name, Model model, string shader="default", bool debug=false, string[] textures = null, Vector3D<float>? position = null, Vector3D<float>? rotation = null, float scale = 0.0f)
         {
             this.name = name;
             this.model = model;
@@ -27,7 +29,7 @@ namespace DiarrhoeaEngine
             if (rotation == null) this.rotation = Vector3D<float>.Zero;
             else this.rotation = (Vector3D<float>)rotation;
             this.scale = scale;
-
+            this.debug = debug;
             foreach(string tex in textures)
             {
                 this.textures.Add(Program.shader.CreateTexture(tex));
@@ -105,8 +107,15 @@ namespace DiarrhoeaEngine
 
             Shader program = Program.shader.ActivateShaderProgram(shader); //
 
-            var _rotation = Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * rotation.Z);
+            var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * rotation.Z));
             var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(scale) * Matrix4X4.CreateTranslation<float>(position) * _rotation;
+
+            /*
+            if(debug == true)
+            {
+                Console.Write($"{name}: ({position})\nCamera: ({Program.camera.Position})");
+            }
+            */
 
             program.SetFloat("fade", Program.loop* Program.loop);
 

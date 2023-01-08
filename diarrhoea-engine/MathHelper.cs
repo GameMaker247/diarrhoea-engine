@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Silk.NET.Maths;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -22,6 +23,10 @@ namespace DiarrhoeaEngine
             if (value <= min) return min;
             else if (value >= max) return max;
             else return value;
+        }
+        public static float Distance(Vector3D<float> a, Vector3D<float> b) 
+        {
+            return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2) + Math.Pow(a.Z - b.Z, 2));
         }
     }
 }

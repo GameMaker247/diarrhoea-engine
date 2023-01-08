@@ -1,4 +1,5 @@
-﻿using Silk.NET.Input;
+﻿using Silk.NET.Core.Contexts;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using System;
 using System.Collections.Generic;
@@ -58,6 +59,7 @@ namespace DiarrhoeaEngine
 
         private void ZoomCam(float delta)
         {
+            Program.camera.Zoom(delta * 30.0f / (float)Program.window.FramesPerSecond);
             //Program.camera.FOV += delta*30.0f/(float)Program.window.FramesPerSecond;
             //if (Program.camera.FOV < 30.0f) Program.camera.FOV = 30.0f;
             //else if (Program.camera.FOV > 130.0f) Program.camera.FOV = 130.0f;
@@ -75,52 +77,23 @@ namespace DiarrhoeaEngine
                 {
                     case Key.W:
                         {
-                            Program.camera.Position += Program.camera.Front * speed / (float)Program.window.FramesPerSecond;//+= new Vector3D<float>(0, 0, 1.0f / (float)Program.window.FramesPerSecond);
+                            Program.camera.Position += Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * speed / (float)Program.window.FramesPerSecond : Program.camera.Up * speed / (float)Program.window.FramesPerSecond;
                         };
                         break;
                     case Key.A:
                         {
-                            //Program.camera.position += Program.camera.front * 6.0f / (float)Program.window.FramesPerSecond;
-                            Program.camera.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Front, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
-                            //Program.camera.position += new Vector3D<float>(1.0f / (float)Program.window.FramesPerSecond, 0, 0);
+                            Program.camera.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
                         };
                         break;
                     case Key.S:
                         {
-                            Program.camera.Position -= Program.camera.Front * speed / (float)Program.window.FramesPerSecond;
-                            //Program.camera.position += new Vector3D<float>(0, 0, -1.0f / (float)Program.window.FramesPerSecond);
+                            Program.camera.Position -= Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * speed / (float)Program.window.FramesPerSecond : Program.camera.Up * speed / (float)Program.window.FramesPerSecond;
                         };
                         break;
                     case Key.D:
                         {
-                            //Program.camera.position -= Program.camera.front * 6.0f / (float)Program.window.FramesPerSecond;
-                            Program.camera.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Front, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
-                            //Program.camera.position += new Vector3D<float>(-1.0f / (float)Program.window.FramesPerSecond, 0, 0);
+                            Program.camera.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
                         };
-                        break;
-                    case Key.Q:
-                        {
-                            //Program.camera.rotation -= 45.0f / (float)Program.window.FramesPerSecond;
-                            //if (Program.camera.rotation <= 0.0f) Program.camera.rotation = 360.0f;
-                        }
-                        break;
-                    case Key.E:
-                        {
-                            //Program.camera.rotation += 45.0f / (float)Program.window.FramesPerSecond;
-                            //if (Program.camera.rotation >= 360.0f) Program.camera.rotation = 0.0f;
-                        }
-                        break;
-                    case Key.Up:
-                        { 
-                            //Program.camera.yaw -= 25.0f / (float)Program.window.FramesPerSecond;
-                            //if (Program.camera.yaw < -60.0f) Program.camera.yaw = -60.0f;
-                        }
-                        break;
-                    case Key.Down:
-                        {
-                            //Program.camera.yaw += 25.0f / (float)Program.window.FramesPerSecond;
-                            //if (Program.camera.yaw > 60.0f) Program.camera.yaw = 60.0f;
-                        }
                         break;
                     case Key.Escape:
                         {
@@ -133,9 +106,24 @@ namespace DiarrhoeaEngine
                             else speed = 6.0f;
                         }
                         break;
-                    case Key.B: { 
-            //Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, "../../../Images/bean.png", position: new Vector3D<float>(Program.camera.position.X, Program.camera.position.Y, Program.camera.position.Z), rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
-                            
+                    case Key.B: 
+                        { 
+                            Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, textures: new string[]{ "../../../Images/bean.png" }, position: Program.camera.Position, rotation: Program.camera.Forward, scale: 25.0f));     
+                        }
+                        break;
+                    case Key.X:
+                        {
+                            Program.player.position += new Vector3D<float>(1.0f, 0, 0);
+                        }
+                        break;
+                    case Key.Z:
+                        {
+                            Program.player.position += new Vector3D<float>(0, 0, 1.0f);
+                        }
+                        break;
+                    case Key.Y:
+                        {
+                            Program.player.position += new Vector3D<float>(0, 1.0f, 0);
                         }
                         break;
                 }
