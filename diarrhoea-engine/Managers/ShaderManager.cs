@@ -2,19 +2,19 @@
 
 namespace DiarrhoeaEngine
 {
-    public class ShaderManager
+    public static class ShaderManager
     {
-        private List<Shader> shaders = new List<Shader>();
-        private List<Texture> textures = new List<Texture>();
+        private static List<Shader> shaders = new List<Shader>();
+        private static List<Texture> textures = new List<Texture>();
 
-        private uint _active = 0;
+        private static uint _active = 0;
 
-        public Shader GetActive()
+        public static Shader GetActive()
         {
             return shaders[(int)_active];
         }
 
-        public Texture CreateTexture(string src)
+        public static Texture CreateTexture(string src)
         {
             if(textures.Find(x => x.src == src) != null) return textures.Find(x => x.src == src);
 
@@ -23,7 +23,7 @@ namespace DiarrhoeaEngine
             return result;
         }
 
-        public Shader ActivateShaderProgram(string title)
+        public static Shader ActivateShaderProgram(string title)
         {
             Shader? shader = shaders.Find(x => x.name == title);
             if (shader == null) throw new Exception($"Shader {title} has not been loaded using LoadProgram.");
@@ -34,7 +34,7 @@ namespace DiarrhoeaEngine
             return shader;
         }
 
-        public Shader LoadProgram(string title="default")
+        public static Shader LoadProgram(string title="default")
         {
             if (shaders.Exists(x => x.name == title)) return shaders.Find(x => x.name == title);
 
@@ -60,7 +60,7 @@ namespace DiarrhoeaEngine
             return result;
         }
 
-        private uint LoadShader(string title, ShaderType type)
+        private static uint LoadShader(string title, ShaderType type)
         {
             uint id = Program.GL.CreateShader(type);
 

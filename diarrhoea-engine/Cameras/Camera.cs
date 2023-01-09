@@ -35,8 +35,6 @@ namespace DiarrhoeaEngine
             set
             {
                 _yaw = MathHelper.Deg2Rad(value);
-
-                Console.WriteLine(_yaw);
                 UpdateVectors();
             }
         }
