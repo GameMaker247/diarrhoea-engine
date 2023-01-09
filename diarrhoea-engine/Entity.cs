@@ -5,126 +5,61 @@ namespace DiarrhoeaEngine
 {
     public class Entity
     {
-        public string name { get; private set; }
-        public Model model { get; private set; }
-        public string shader;
+        public string Name { get; set; }
+        public Vector3D<float> Position { get; set; }
+        public Vector3D<float> Rotation { get; set; }
+        public float scale;
 
-        private List<Texture> textures = new List<Texture>();
+        private Renderer renderer;
+        private List<Component> components = new List<Component>();
 
-        public Vector3D<float> position; //{ get; private set; }
-        public Vector3D<float> rotation { get; private set; }
-        public float scale { get; private set; }
-
-        private bool debug = false;
-
-        public Entity(string name, Model model, string shader="default", bool debug=false, string[] textures = null, Vector3D<float>? position = null, Vector3D<float>? rotation = null, float scale = 0.0f)
+        public Entity(string Name, ref Renderer renderer, List<Component> components = null, Vector3D<float>? Position = null, Vector3D<float>? Rotation = null, float scale = 1.0f)
         {
-            this.name = name;
-            this.model = model;
-            this.shader = shader;
+            this.Name= Name;
 
-            if (position == null) this.position = Vector3D<float>.Zero;
-            else this.position = (Vector3D<float>)position;
+            this.renderer = new Renderer(renderer);
+            this.renderer.SetEntity(this);
+            this.renderer.Initialize();
 
-            if (rotation == null) this.rotation = Vector3D<float>.Zero;
-            else this.rotation = (Vector3D<float>)rotation;
-            this.scale = scale;
-            this.debug = debug;
-            foreach(string tex in textures)
+            if (components != null)
             {
-                this.textures.Add(Program.shader.CreateTexture(tex));
+                this.components = components;
+                this.components.ForEach(x => x.SetEntity(this));
+                this.components.ForEach(x => x.Initialize());
             }
 
-            Setup();
+            if (Position == null) this.Position = Vector3D<float>.Zero;
+            else this.Position = (Vector3D<float>)Position;
+
+
+            if (Rotation == null) this.Rotation = Vector3D<float>.Zero;
+            else this.Rotation = (Vector3D<float>)Rotation;
+
+            this.scale= scale;
         }
 
-        public void MoveXYZ(float x, float y, float z)
+        public void AddComponent(Component component)
         {
-            position += new Vector3D<float>(x, y, z);
+            if (component.multiple == false && components.Exists(x => x.GetType() == component.GetType())) return;
+
+            component.Initialize();
+            components.Add(component);
         }
 
-        private uint _vertexBufferObject;
-        private uint _colorBufferObject;
-        private uint _vertexArrayObject;
-        private uint _elementBufferObject;
-
-        private unsafe void Setup()
+        public void Draw()
         {
-            // --- OBJECT --- //
-            _vertexArrayObject = Program.GL.GenVertexArray();
-            Program.GL.BindVertexArray(_vertexArrayObject);
-            // --- ------ --- //
-
-            // --- VERTICES --- //
-            _vertexBufferObject = Program.GL.GenBuffer();
-            Program.GL.BindBuffer(GLEnum.ArrayBuffer, _vertexBufferObject);
-            Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.vertices.AsSpan(), GLEnum.StaticDraw);
-            // --- -------- --- //
-
-            // --- INDICES --- //
-            _elementBufferObject = Program.GL.GenBuffer();
-            Program.GL.BindBuffer(GLEnum.ElementArrayBuffer, _elementBufferObject);
-            Program.GL.BufferData(GLEnum.ElementArrayBuffer, (ReadOnlySpan<uint>)model.indices.AsSpan(), GLEnum.StaticDraw);
-            // --- ------- --- //
-
-            // --- SHADER --- //
-            Shader program = Program.shader.LoadProgram(shader);
-            Program.shader.ActivateShaderProgram(shader);
-            // --- ------ --- //
-
-            // --- TEXTURE --- //
-            for(uint i = 0; i < textures.Count; i++) 
-            {
-                program.SetInt($"texture{i}", (int)i);
-            }
-            // --- ------- --- //
-
-            // --- VERTICES --- //
-            uint vertexLocation = (uint)Program.GL.GetAttribLocation(program.id, "aPosition");
-            Program.GL.VertexAttribPointer(vertexLocation, 3, GLEnum.Float, false, 0, null);
-            Program.GL.EnableVertexAttribArray(vertexLocation);
-            // --- -------- --- //
-
-            // --- TEXTURE --- //
-            _colorBufferObject = Program.GL.GenBuffer();
-            Program.GL.BindBuffer(GLEnum.ArrayBuffer, _colorBufferObject);
-            Program.GL.BufferData(GLEnum.ArrayBuffer, (ReadOnlySpan<float>)model.texture.AsSpan(), GLEnum.StaticDraw);
-
-            uint textureLocation = (uint)Program.GL.GetAttribLocation(program.id, "aTexCoord");
-            Program.GL.VertexAttribPointer(textureLocation, 2, GLEnum.Float, false, 0, null);
-            Program.GL.EnableVertexAttribArray(textureLocation);
-            // --- ------- --- //
-
-            //Console.WriteLine($"Width: {Program.GetWindowSize().X}, Height: {Program.GetWindowSize().Y}, Ratio: {Program.GetWindowSize().X / Program.GetWindowSize().Y}");
+            renderer.Update();
         }
 
-        public unsafe void Draw()
+        public void Update()
         {
-            for (int i = 0; i < textures.Count; i++)
-            {
-                textures[i].Use((TextureUnit)(TextureUnit.Texture0+i));
-            }
+            components?.ForEach(x => x.Update());
+            //if (MathHelper.Distance(Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, -Program.camera.Position.Y)) < 10.0f) Destroy();
+        }
 
-            Shader program = Program.shader.ActivateShaderProgram(shader); //
-
-            var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * rotation.Z));
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(scale) * Matrix4X4.CreateTranslation<float>(position) * _rotation;
-
-            /*
-            if(debug == true)
-            {
-                Console.Write($"{name}: ({position})\nCamera: ({Program.camera.Position})");
-            }
-            */
-
-            program.SetFloat("fade", Program.loop* Program.loop);
-
-            program.SetMatrix4("model", _model);
-            program.SetMatrix4("view", Program._view);
-            program.SetMatrix4("projection", Program._projection);
-
-            Program.GL.BindVertexArray(_vertexArrayObject);
-            Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
+        public void Destroy()
+        {
+            WorldManager.RemoveEntity(this);
         }
     }
 }

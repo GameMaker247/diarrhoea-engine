@@ -108,22 +108,22 @@ namespace DiarrhoeaEngine
                         break;
                     case Key.B: 
                         { 
-                            Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, textures: new string[]{ "../../../Images/bean.png" }, position: Program.camera.Position, rotation: Program.camera.Forward, scale: 25.0f));     
+                            //Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, textures: new string[]{ "../../../Images/bean.png" }, position: Program.camera.Position, rotation: Program.camera.Forward, scale: 25.0f));     
                         }
                         break;
                     case Key.X:
                         {
-                            Program.player.position += new Vector3D<float>(1.0f, 0, 0);
+                            Program.player.Position += new Vector3D<float>(1.0f, 0, 0);
                         }
                         break;
                     case Key.Z:
                         {
-                            Program.player.position += new Vector3D<float>(0, 0, 1.0f);
+                            Program.player.Position += new Vector3D<float>(0, 0, 1.0f);
                         }
                         break;
                     case Key.Y:
                         {
-                            Program.player.position += new Vector3D<float>(0, 1.0f, 0);
+                            Program.player.Position += new Vector3D<float>(0, 1.0f, 0);
                         }
                         break;
                 }
