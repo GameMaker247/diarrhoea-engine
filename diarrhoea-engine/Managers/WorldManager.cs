@@ -30,6 +30,11 @@ namespace DiarrhoeaEngine
             }
         }
 
+        public static Entity FindEntity(string name)
+        {
+            return entities.Find(x => x.Name == name);
+        }
+
         public static void Render()
         {
             /* IMPORTANT!!! TRY THIS FUNCTION WITH OTHER RETARD SHIT NOT WORKING */

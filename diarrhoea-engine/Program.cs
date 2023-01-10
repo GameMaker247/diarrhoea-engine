@@ -71,8 +71,8 @@ namespace DiarrhoeaEngine
             {
                 for (int z = -gridSize; z < gridSize; z++)
                 {
-                    if (rand.Next(0, 2) == 1)
-                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, z, 0), Rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
+                    //if (rand.Next(0, 2) == 1)
+                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, 0, z), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
                 }
             }
 
@@ -99,20 +99,21 @@ namespace DiarrhoeaEngine
 
         public static float loop = 0.0f;
         private static bool up = true;
-
+        private static float loopSpeed = 6.0f;
         private static void OnUpdate(double obj)
         {
             controls.Update();
+            
             WorldManager.Update();
-
+            WorldManager.FindEntity("Mr. Bean").Rotation = new Vector3D<float>(0.0f, loop*360.0f, 0.0f);
             if (up)
             {
-                loop += 1.0f / (float)window.FramesPerSecond;
-                if (loop >= 1.0f) up = false;
+                loop += 1.0f / loopSpeed / (float)window.FramesPerSecond;
+                if (loop >= 10.0f) up = false;
             }
             else
             {
-                loop -= 1.0f / (float)window.FramesPerSecond;
+                loop -= 1.0f / loopSpeed / (float)window.FramesPerSecond;
                 if (loop <= 0.0f) up = true;
             }
             
