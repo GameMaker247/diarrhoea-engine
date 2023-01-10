@@ -43,12 +43,12 @@ namespace DiarrhoeaEngine
         {
             controls = new ControllerManager(window.CreateInput());
             //camera = new RTSCamera(GetWindowSize().X / 32, GetWindowSize().Y / 32, Vector3D<float>.Zero);
-            camera = new FPSCamera(70.0f, GetWindowSize().X / GetWindowSize().Y, new Vector3D<float>(0.0f, 4.0f, 0.0f));
+            camera = new FPSCamera(80.0f, GetWindowSize().X / GetWindowSize().Y, new Vector3D<float>(0.0f, 4.0f, 0.0f));
 
             GL = window.CreateOpenGL();
 
             GL.ClearColor(Color.Aqua);
-            
+
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
             //GL.Enable(EnableCap.CullFace); Helps in FPS but not RTS
@@ -58,12 +58,12 @@ namespace DiarrhoeaEngine
 
             _view = camera.GetViewMatrix();
             _projection = camera.GetProjectionMatrix();
-            
+
             int gridSize = 10;
 
-            Model.LoadModel("../../../Models/retard.obj");
+            //Model.LoadModel("../../../Models/retard.obj");
 
-            Renderer obj = new Renderer(Model.LoadModel("../../../Models/retard.obj"), shader: "default", textures: new string[] { "../../../Images/bean.png" });
+            Renderer obj = new Renderer(Model.LoadModel("../../../Models/stallCustom.obj"), shader: "default", new string[] { "../../../Models/stallTexture.png" });
             Renderer example = new Renderer(Model.Square, shader: "fade", textures: new string[] { "../../../Images/retard.png", "../../../Images/bean.png" });
             Renderer player_renderer = new Renderer(Model.Square, textures: new string[] { "../../../Images/bean.png" });
 
@@ -72,12 +72,17 @@ namespace DiarrhoeaEngine
                 for (int z = -gridSize; z < gridSize; z++)
                 {
                     if (rand.Next(0, 2) == 1)
-                        WorldManager.SpawnEntity(new Entity($"NPC ({x+z})", ref example, Position: new Vector3D<float>(x, z, 0), Rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
+                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, z, 0), Rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
                 }
             }
 
-            player = new Entity("Player", ref obj, Position: new Vector3D<float>(0.0f, 0.0f, 10.0f), Rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 10.0f);
-            WorldManager.SpawnEntity(player); 
+           for (int i = 0; i < 20; i++)
+           {
+                WorldManager.SpawnEntity(new Entity("Stall", ref obj, Position: new Vector3D<float>(i*12.0f, 0.0f, 0.0f), Rotation: new Vector3D<float>(0.0f, 90.0f, 0.0f), scale: 1.0f));
+           }
+
+            
+            //WorldManager.SpawnEntity(player); 
             WorldManager.SpawnEntity(new Entity("Mr. Bean", ref player_renderer, Position: new Vector3D<float>(0.0f, 12.0f, 36.0f), Rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
         }
 
