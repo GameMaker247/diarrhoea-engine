@@ -19,7 +19,7 @@ namespace DiarrhoeaEngine
 
         public override Matrix4X4<float> GetProjectionMatrix()
         {
-            return Matrix4X4.CreatePerspectiveFieldOfView<float>(MathHelper.Deg2Rad(_FOV), _AspectRatio, 0.01f, 100f);
+            return Matrix4X4.CreatePerspectiveFieldOfView<float>(MathHelper.Deg2Rad(_FOV), _AspectRatio, 0.001f, 1000.0f);
         }
 
         public override Matrix4X4<float> GetViewMatrix()

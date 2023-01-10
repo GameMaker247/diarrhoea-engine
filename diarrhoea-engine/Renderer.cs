@@ -14,7 +14,7 @@ namespace DiarrhoeaEngine
     {
         public Model model { get; private set;}
         public string shader { get; private set; }
-        public List<Texture> textures { get; private set; } = new List<Texture>();
+        public List<Texture> textures { get; private set; } = null;
 
         private uint _vertexBufferObject;
         private uint _colorBufferObject;
@@ -26,6 +26,9 @@ namespace DiarrhoeaEngine
             this.model = model;
             this.shader = shader;
 
+            if (textures == null) return;
+
+            this.textures = new List<Texture>();
             foreach(string s in textures)
             {
                 this.textures.Add(ShaderManager.CreateTexture(s));
@@ -63,10 +66,13 @@ namespace DiarrhoeaEngine
             ShaderManager.ActivateShaderProgram(shader);
             // --- ------ --- //
 
-            // --- TEXTURE --- //
-            for (uint i = 0; i < textures.Count; i++)
+            if (textures != null)
             {
-                program.SetInt($"texture{i}", (int)i);
+                // --- TEXTURE --- //
+                for (uint i = 0; i < textures.Count; i++)
+                {
+                    program.SetInt($"texture{i}", (int)i);
+                }
             }
             // --- ------- --- //
 
@@ -89,9 +95,12 @@ namespace DiarrhoeaEngine
 
         public override unsafe void Update()
         {
-            for (int i = 0; i < textures.Count; i++)
+            if (textures != null)
             {
-                textures[i].Use((TextureUnit)(TextureUnit.Texture0 + i));
+                for (int i = 0; i < textures.Count; i++)
+                {
+                    textures[i].Use((TextureUnit)(TextureUnit.Texture0 + i));
+                }
             }
 
             Shader program = ShaderManager.ActivateShaderProgram(shader); //
