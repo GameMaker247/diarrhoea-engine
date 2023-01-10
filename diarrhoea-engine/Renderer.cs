@@ -106,7 +106,7 @@ namespace DiarrhoeaEngine
             Shader program = ShaderManager.ActivateShaderProgram(shader); //
 
             var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * entity.Rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * entity.Rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * entity.Rotation.Z));
-            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(entity.scale) * Matrix4X4.CreateTranslation<float>(entity.Position) * _rotation;
+            var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(entity.scale) * _rotation * Matrix4X4.CreateTranslation<float>(entity.Position);
 
             program.SetFloat("fade", Program.loop * Program.loop);
 
