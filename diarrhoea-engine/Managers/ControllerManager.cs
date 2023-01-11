@@ -107,8 +107,8 @@ namespace DiarrhoeaEngine
                         }
                         break;
                     case Key.B: 
-                        { 
-                            //Program.world.SpawnEntity(new Entity("Mr. Bean", Model.Square, textures: new string[]{ "../../../Images/bean.png" }, position: Program.camera.Position, rotation: Program.camera.Forward, scale: 25.0f));     
+                        {
+                            WorldManager.SpawnEntity(new Entity("Mr. Bean Fly", ref Program.player_renderer, Position: Program.camera.Position, Rotation: new Vector3D<float>(Program.camera.Pitch, Program.camera.Yaw, 0.0f), scale: 1.0f));
                         }
                         break;
                     case Key.X:

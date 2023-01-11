@@ -23,6 +23,11 @@ namespace DiarrhoeaEngine
         public static Matrix4X4<float> _view;
         public static Matrix4X4<float> _projection;
         private static Random rand = new Random();
+
+        public static Renderer obj;
+        public static Renderer example;
+        public static Renderer player_renderer;
+
         private static unsafe void Main(string[] args)
         {
             WindowOptions options = WindowOptions.Default;
@@ -63,16 +68,16 @@ namespace DiarrhoeaEngine
 
             //Model.LoadModel("../../../Models/retard.obj");
 
-            Renderer obj = new Renderer(Model.LoadModel("../../../Models/stallCustom.obj"), shader: "default", new string[] { "../../../Models/stallTexture.png" });
-            Renderer example = new Renderer(Model.Square, shader: "fade", textures: new string[] { "../../../Images/retard.png", "../../../Images/bean.png" });
-            Renderer player_renderer = new Renderer(Model.Square, textures: new string[] { "../../../Images/bean.png" });
+            obj = new Renderer(Model.LoadModel("../../../Models/house.obj"), shader: "default", new string[] { "../../../Models/house.png" });
+            example = new Renderer(Model.Square, shader: "fade", textures: new string[] { "../../../Images/retard.png", "../../../Images/bean.png" });
+            player_renderer = new Renderer(Model.Square, textures: new string[] { "../../../Images/bean.png" });
 
             for (int x = -gridSize; x < gridSize; x++)
             {
                 for (int z = -gridSize; z < gridSize; z++)
                 {
                     //if (rand.Next(0, 2) == 1)
-                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, 0, z), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
+                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, -0.1f, z), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
                 }
             }
 
@@ -84,6 +89,7 @@ namespace DiarrhoeaEngine
             
             //WorldManager.SpawnEntity(player); 
             WorldManager.SpawnEntity(new Entity("Mr. Bean", ref player_renderer, Position: new Vector3D<float>(0.0f, 12.0f, 36.0f), Rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
+            WorldManager.SpawnEntity(new Entity("Mr. Bean2", ref player_renderer, Position: new Vector3D<float>(0.0f, -20.0f, 0.0f), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f), scale: 25.0f));
         }
 
         private static void OnRender(double obj)
@@ -105,11 +111,11 @@ namespace DiarrhoeaEngine
             controls.Update();
             
             WorldManager.Update();
-            WorldManager.FindEntity("Mr. Bean").Rotation = new Vector3D<float>(0.0f, loop*360.0f, 0.0f);
+            WorldManager.FindEntity("Mr. Bean").Rotation = new Vector3D<float>(loop*360.0f, loop*360.0f, 0.0f);
             if (up)
             {
                 loop += 1.0f / loopSpeed / (float)window.FramesPerSecond;
-                if (loop >= 10.0f) up = false;
+                if (loop >= 1.0f) up = false;
             }
             else
             {

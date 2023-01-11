@@ -37,15 +37,9 @@ namespace DiarrhoeaEngine
 
         public static void Render()
         {
-            /* IMPORTANT!!! TRY THIS FUNCTION WITH OTHER RETARD SHIT NOT WORKING */
-            //X = -Z
-            //Y = X
-            //Z = -Y (need to check Cameras Y position to invert if below 0)
-            /* ----------------------------------------------------------------- */
-
             IEnumerable<Entity> sortByPosition =
                 from entity in entities
-                orderby Program.camera.Position.Y > 0.0f ? MathHelper.Distance(entity.Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, -Program.camera.Position.Y)) : MathHelper.Distance(entity.Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, Program.camera.Position.Y)) descending
+                orderby MathHelper.Distance(entity.Position, Program.camera.Position) descending
                 select entity;
 
 
@@ -57,3 +51,11 @@ namespace DiarrhoeaEngine
         }
     }
 }
+
+/* IMPORTANT!!! TRY THIS FUNCTION WITH OTHER RETARD SHIT NOT WORKING */
+//X = -Z
+//Y = X
+//Z = -Y (need to check Cameras Y position to invert if below 0)
+/* ----------------------------------------------------------------- */
+// I THINK I FIXED THIS
+//                orderby Program.camera.Position.Y > 0.0f ? MathHelper.Distance(entity.Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, -Program.camera.Position.Y)) : MathHelper.Distance(entity.Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, Program.camera.Position.Y)) descending
