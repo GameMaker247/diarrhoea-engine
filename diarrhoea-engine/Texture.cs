@@ -14,7 +14,7 @@ namespace DiarrhoeaEngine
             Bitmap bmp = new Bitmap(src);
             this.src = src;
 
-            bmp.RotateFlip(RotateFlipType.Rotate90FlipY);               //.Format32bppArgb
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);               //.Format32bppArgb
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);//Format32bppArgb);
 
             id = Program.GL.GenTexture();

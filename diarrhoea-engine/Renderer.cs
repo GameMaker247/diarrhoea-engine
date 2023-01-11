@@ -108,12 +108,13 @@ namespace DiarrhoeaEngine
             var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * entity.Rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * entity.Rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * entity.Rotation.Z));
             var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(entity.scale) * _rotation * Matrix4X4.CreateTranslation<float>(entity.Position);
 
-            program.SetFloat("fade", Program.loop * Program.loop);
+            program.SetFloat("fade", Program.loop);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);
             program.SetMatrix4("projection", Program._projection);
 
+            Program.GL.CullFace(CullFaceMode.Back);
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
         }

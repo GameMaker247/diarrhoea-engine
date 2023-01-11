@@ -32,9 +32,11 @@ namespace DiarrhoeaEngine
         {
             WindowOptions options = WindowOptions.Default;
             options.Title = "Diarrhoea Engine -- V 0.0.1";
-            options.Size = new Vector2D<int>(1280, 720);
+            options.Size = new Vector2D<int>(1920, 1080);
             options.FramesPerSecond = 60;
-            
+            options.WindowState = WindowState.Fullscreen;
+            options.VSync= true;
+
             window = Window.Create(options);
 
             window.Load += OnLoad;
@@ -56,7 +58,7 @@ namespace DiarrhoeaEngine
 
             GL.Enable(EnableCap.DepthTest);
             GL.Enable(EnableCap.Blend);
-            //GL.Enable(EnableCap.CullFace); Helps in FPS but not RTS
+            GL.Enable(EnableCap.CullFace);
             GL.Enable(EnableCap.DepthClamp);
 
             GL.BlendFunc(BlendingFactor.SrcAlpha, BlendingFactor.OneMinusSrcAlpha);
@@ -68,7 +70,8 @@ namespace DiarrhoeaEngine
 
             //Model.LoadModel("../../../Models/retard.obj");
 
-            obj = new Renderer(Model.LoadModel("../../../Models/house.obj"), shader: "default", new string[] { "../../../Models/house.png" });
+            obj = new Renderer(Model.LoadModel("../../../Models/house_2.obj"), shader: "default", new string[] { "../../../Models/house_2.png" });
+            Renderer stall = new Renderer(Model.LoadModel("../../../Models/stallCustom.obj"), shader: "default", new string[] { "../../../Models/stallTexture2.png" });
             example = new Renderer(Model.Square, shader: "fade", textures: new string[] { "../../../Images/retard.png", "../../../Images/bean.png" });
             player_renderer = new Renderer(Model.Square, textures: new string[] { "../../../Images/bean.png" });
 
@@ -77,19 +80,38 @@ namespace DiarrhoeaEngine
                 for (int z = -gridSize; z < gridSize; z++)
                 {
                     //if (rand.Next(0, 2) == 1)
-                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, -0.1f, z), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
+                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, -0.1f, z), Rotation: new Vector3D<float>(90.0f, 0.0f, 0.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
                 }
             }
 
-           for (int i = 0; i < 20; i++)
-           {
-                WorldManager.SpawnEntity(new Entity("Stall", ref obj, Position: new Vector3D<float>(i*12.0f, 0.0f, 0.0f), Rotation: new Vector3D<float>(0.0f, 90.0f, 0.0f), scale: 1.0f));
-           }
+            for (int i = 0; i < 20; i++)
+            {
+                int x = rand.Next(-10, 10) * i;
+                int z = rand.Next(-10, 10) * i;
+                
+                WorldManager.SpawnEntity(new Entity("House", ref obj, Position: new Vector3D<float>(x, 0.0f, z), Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+            }
 
-            
+            for (int i = 0; i < 20; i++)
+            {
+                int x = rand.Next(-10, 10) * i;
+                int z = rand.Next(-10, 10) * i;
+
+                int rot = rand.Next(0, 360);
+                WorldManager.SpawnEntity(new Entity("Stall", ref stall, Position: new Vector3D<float>(x, 0.0f, z), Rotation: new Vector3D<float>(0.0f, rot, 0.0f), scale: 0.25f));
+            }
             //WorldManager.SpawnEntity(player); 
             WorldManager.SpawnEntity(new Entity("Mr. Bean", ref player_renderer, Position: new Vector3D<float>(0.0f, 12.0f, 36.0f), Rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
-            WorldManager.SpawnEntity(new Entity("Mr. Bean2", ref player_renderer, Position: new Vector3D<float>(0.0f, -20.0f, 0.0f), Rotation: new Vector3D<float>(0.0f, 90.0f, 90.0f), scale: 25.0f));
+            WorldManager.SpawnEntity(new Entity("Player", ref player_renderer, Position: new Vector3D<float>(0.0f, -20.0f, 0.0f), Rotation: new Vector3D<float>(90.0f, 0.0f, 0.0f), scale: 25.0f));
+            
+            Entity player = WorldManager.FindEntity("Player");
+            player.onUpdate += () =>
+            {
+                if (controls.keysPressed.Contains(Key.W)) player.Position += Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * 6.0f / (float)Program.window.FramesPerSecond : Program.camera.Up * 6.0f / (float)Program.window.FramesPerSecond;
+                if (controls.keysPressed.Contains(Key.S)) player.Position -= Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * 6.0f / (float)Program.window.FramesPerSecond : Program.camera.Up * 6.0f / (float)Program.window.FramesPerSecond;
+                if (controls.keysPressed.Contains(Key.A)) player.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * 6.0f / (float)Program.window.FramesPerSecond;
+                if (controls.keysPressed.Contains(Key.D)) player.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * 6.0f / (float)Program.window.FramesPerSecond;
+            };
         }
 
         private static void OnRender(double obj)
@@ -111,7 +133,8 @@ namespace DiarrhoeaEngine
             controls.Update();
             
             WorldManager.Update();
-            WorldManager.FindEntity("Mr. Bean").Rotation = new Vector3D<float>(loop*360.0f, loop*360.0f, 0.0f);
+            WorldManager.FindEntity("Mr. Bean").Rotation = new Vector3D<float>(0.0f, 0.0f, loop * 360.0f);
+
             if (up)
             {
                 loop += 1.0f / loopSpeed / (float)window.FramesPerSecond;
