@@ -12,9 +12,10 @@ namespace DiarrhoeaEngine
     {
         public static List<Entity> entities = new List<Entity>(); //Includes players, NPCs and world objects (Doesn't include Tiles)
 
-        public static void SpawnEntity(Entity entity)
+        public static Entity SpawnEntity(Entity entity)
         {
             entities.Add(entity);
+            return entity;
         }
 
         public static void RemoveEntity(Entity entity)

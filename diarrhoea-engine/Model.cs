@@ -63,12 +63,15 @@ namespace DiarrhoeaEngine
 
             for (int i = 0; i < regexTextures.Count; i++)
             {
-                string values = regexTextures[i].Value.Split("vt")[1];
+                //try
+                //{
+                    string values = regexTextures[i].Value.Split("vt")[1];
 
-                float x = float.Parse(values.Split(' ')[1]);
-                float y = float.Parse(values.Split(' ')[2]);
+                    float x = float.Parse(values.Split(' ')[1]);
+                    float y = float.Parse(values.Split(' ')[2]);
 
-                textures.Add(new Vector2D<float>(x, y));
+                    textures.Add(new Vector2D<float>(x, y));
+                //}catch(Exception ex) { }
             }
 
             for (int i = 0; i < regexNormals.Count; i++)
@@ -93,7 +96,7 @@ namespace DiarrhoeaEngine
 
                 //UV Index
                 int vertex_2 = int.Parse(values.Split(' ')[2].Split('/')[0])-1;
-                int texture_2 = int.Parse(values.Split(' ')[2].Split('/')[1])-1;
+                //int texture_2 = int.Parse(values.Split(' ')[2].Split('/')[1])-1;
                 int normal_2 = int.Parse(values.Split(' ')[2].Split('/')[2])-1;
 
                 //Normal Index
@@ -105,11 +108,12 @@ namespace DiarrhoeaEngine
                 _indices.Add((uint)vertex_2);
                 _indices.Add((uint)vertex_3);
 
+                
                 _textures.Add(textures.ToArray()[texture_1].X);
                 _textures.Add(textures.ToArray()[texture_1].Y);
 
-                _textures.Add(textures.ToArray()[texture_2].X);
-                _textures.Add(textures.ToArray()[texture_2].Y);
+                //_textures.Add(textures.ToArray()[(int)Math.Floor((float)texture_2 / 2)].X);
+                //_textures.Add(textures.ToArray()[(int)Math.Floor((float)texture_2 / 2)].Y);
 
                 _textures.Add(textures.ToArray()[texture_3].X);
                 _textures.Add(textures.ToArray()[texture_3].Y);
