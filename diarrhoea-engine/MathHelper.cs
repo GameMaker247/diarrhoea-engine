@@ -28,5 +28,10 @@ namespace DiarrhoeaEngine
         {
             return (float)Math.Sqrt(Math.Pow(a.X - b.X, 2) + Math.Pow(a.Y - b.Y, 2) + Math.Pow(a.Z - b.Z, 2));
         }
+
+        public static Vector3D<float> PlaneProjection(Vector3D<float> position, Vector3D<float> plane)
+        {
+            return position;
+        }
     }
 }

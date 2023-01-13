@@ -11,6 +11,7 @@ namespace DiarrhoeaEngine
     public class RTSCamera : Camera
     {
         private float _width, _height, _ratio;
+        private const float SPEED = 6.0f;
 
         public float Pitch
         {
@@ -48,6 +49,12 @@ namespace DiarrhoeaEngine
         public override Matrix4X4<float> GetViewMatrix()
         {
             return Matrix4X4.CreateLookAt<float>(Position, Position + Forward, Up);
+        }
+
+        public override void Movement(Vector2D<float> vectors)
+        {
+            Position += MathHelper.PlaneProjection(Up * SPEED / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY) +
+                MathHelper.PlaneProjection(Vector3D.Normalize<float>(Vector3D.Cross<float>(Forward, Up)) * vectors.X * SPEED / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);
         }
 
         public override void Zoom(float zoom)

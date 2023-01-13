@@ -13,6 +13,8 @@ namespace DiarrhoeaEngine
         private Renderer renderer;
         private List<Component> components = new List<Component>();
 
+        public Action onUpdate;
+
         public Entity(string Name, ref Renderer renderer, List<Component> components = null, Vector3D<float>? Position = null, Vector3D<float>? Rotation = null, float scale = 1.0f)
         {
             this.Name= Name;
@@ -42,9 +44,12 @@ namespace DiarrhoeaEngine
         {
             if (component.multiple == false && components.Exists(x => x.GetType() == component.GetType())) return;
 
+            component.SetEntity(this);
             component.Initialize();
             components.Add(component);
         }
+
+        public Component GetComponent(Type type) { return components.Find(x => x.GetType() == type); }
 
         public void Draw()
         {
@@ -54,6 +59,7 @@ namespace DiarrhoeaEngine
         public void Update()
         {
             components?.ForEach(x => x.Update());
+            onUpdate?.Invoke();
             //if (MathHelper.Distance(Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, -Program.camera.Position.Y)) < 10.0f) Destroy();
         }
 

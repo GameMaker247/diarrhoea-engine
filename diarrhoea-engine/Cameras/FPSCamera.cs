@@ -10,6 +10,7 @@ namespace DiarrhoeaEngine
     public class FPSCamera : Camera
     {
         private float _FOV, _AspectRatio;
+        private const float SPEED = 6.0f;
 
         public FPSCamera(float _FOV, float _AspectRatio, Vector3D<float> Position) : base(Position)
         {
@@ -30,6 +31,12 @@ namespace DiarrhoeaEngine
         public override void Zoom(float zoom)
         {
             _FOV = MathHelper.Clamp(_FOV+zoom, 10.0f, 120.0f);
+        }
+
+        public override void Movement(Vector2D<float> vectors)
+        {
+            Position += MathHelper.PlaneProjection((Forward * vectors.Y * SPEED) / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY) +
+                MathHelper.PlaneProjection(Vector3D.Normalize<float>(Vector3D.Cross<float>(Forward, Up)) * vectors.X * SPEED / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);
         }
 
         public override void UpdateVectors()

@@ -1,7 +1,9 @@
-﻿using Silk.NET.Input;
+﻿using Silk.NET.Core.Contexts;
+using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.OpenGL;
 using Silk.NET.SDL;
+using Silk.NET.Windowing;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -14,21 +16,20 @@ namespace DiarrhoeaEngine
     {
         public Model model { get; private set;}
         public string shader { get; private set; }
-        public List<Texture> textures { get; private set; } = null;
+        public List<Texture> textures { get; private set; } = new List<Texture>();
 
-        private uint _vertexBufferObject;
-        private uint _colorBufferObject;
-        private uint _vertexArrayObject;
-        private uint _elementBufferObject;
+        public uint _vertexBufferObject;
+        public uint _colorBufferObject;
+        public uint _vertexArrayObject;
+        public uint _elementBufferObject;
 
         public Renderer(Model model, string shader = "default", string[]? textures = null)
         {
             this.model = model;
             this.shader = shader;
 
-            if (textures == null) return;
-
-            this.textures = new List<Texture>();
+            if (textures == null) { this.textures.Add(ShaderManager.CreateTexture("ERROR")); return; }
+            
             foreach(string s in textures)
             {
                 this.textures.Add(ShaderManager.CreateTexture(s));
@@ -42,8 +43,12 @@ namespace DiarrhoeaEngine
             textures = renderer.textures;
         }
 
+        
         public override unsafe void Initialize()
         {
+            Program.window.ClearContext();
+            Program.window.GLContext.MakeCurrent();
+
             // --- OBJECT --- //
             _vertexArrayObject = Program.GL.GenVertexArray();
             Program.GL.BindVertexArray(_vertexArrayObject);
@@ -92,6 +97,7 @@ namespace DiarrhoeaEngine
             Program.GL.EnableVertexAttribArray(textureLocation);
             // --- ------- --- //
         }
+        
 
         public override unsafe void Update()
         {
@@ -108,12 +114,13 @@ namespace DiarrhoeaEngine
             var _rotation = (Matrix4X4.CreateRotationX<float>(((float)Math.PI / 180) * entity.Rotation.X) * Matrix4X4.CreateRotationY<float>(((float)Math.PI / 180) * entity.Rotation.Y) * Matrix4X4.CreateRotationZ<float>(((float)Math.PI / 180) * entity.Rotation.Z));
             var _model = Matrix4X4<float>.Identity * Matrix4X4.CreateScale<float>(entity.scale) * _rotation * Matrix4X4.CreateTranslation<float>(entity.Position);
 
-            program.SetFloat("fade", Program.loop * Program.loop);
+            program.SetFloat("fade", Program.loop);
 
             program.SetMatrix4("model", _model);
             program.SetMatrix4("view", Program._view);
             program.SetMatrix4("projection", Program._projection);
 
+            Program.GL.CullFace(CullFaceMode.Back);
             Program.GL.BindVertexArray(_vertexArrayObject);
             Program.GL.DrawElements(GLEnum.Triangles, (uint)model.indices.Length, GLEnum.UnsignedInt, null);
         }

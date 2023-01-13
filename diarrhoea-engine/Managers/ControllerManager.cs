@@ -12,7 +12,13 @@ namespace DiarrhoeaEngine
 {
     public class ControllerManager
     {
-        public List<Key> keysPressed = new List<Key>();
+        private List<Key> keysPressed = new List<Key>();
+        private List<Key> keysClicked = new List<Key>();
+
+        public Action<Key> onKeyPressed;
+        public Action<Key> onKeyClicked;
+        public Action<Key> onKeyRelease;
+
         public bool IsKeyPressed(Key key) { return keysPressed.Contains(key); }
         
         private Vector2 lastPosition = new Vector2(0, 0);
@@ -23,8 +29,8 @@ namespace DiarrhoeaEngine
             ctx.Mice[0].Click += OnMouseClick;
             ctx.Mice[0].MouseMove += OnMouseMove;
             ctx.Mice[0].Scroll += OnMouseScroll;
-            ctx.Keyboards[0].KeyDown += (_, key, _) => keysPressed?.Add(key);
-            ctx.Keyboards[0].KeyUp += (_, key, _) => keysPressed?.Remove(key);
+            ctx.Keyboards[0].KeyDown += (_, key, _) => { keysPressed?.Add(key); onKeyClicked?.Invoke(key); };
+            ctx.Keyboards[0].KeyUp += (_, key, _) => { keysPressed?.Remove(key); onKeyRelease?.Invoke(key); };
         }
 
         private void OnMouseScroll(IMouse arg1, ScrollWheel arg2)
@@ -67,66 +73,11 @@ namespace DiarrhoeaEngine
             //Console.WriteLine(Program.camera.FOV);
         }
 
-        private float speed = 6.0f;
-
         public void Update()
         {
             keysPressed.ForEach(x =>
             {
-                switch (x)
-                {
-                    case Key.W:
-                        {
-                            Program.camera.Position += Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * speed / (float)Program.window.FramesPerSecond : Program.camera.Up * speed / (float)Program.window.FramesPerSecond;
-                        };
-                        break;
-                    case Key.A:
-                        {
-                            Program.camera.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
-                        };
-                        break;
-                    case Key.S:
-                        {
-                            Program.camera.Position -= Program.camera.GetType() == typeof(FPSCamera) ? Program.camera.Forward * speed / (float)Program.window.FramesPerSecond : Program.camera.Up * speed / (float)Program.window.FramesPerSecond;
-                        };
-                        break;
-                    case Key.D:
-                        {
-                            Program.camera.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
-                        };
-                        break;
-                    case Key.Escape:
-                        {
-                            Program.window.Close();
-                        }
-                        break;
-                    case Key.ShiftLeft:
-                        {
-                            if (speed == 6.0f) speed = 12.0f;
-                            else speed = 6.0f;
-                        }
-                        break;
-                    case Key.B: 
-                        {
-                            WorldManager.SpawnEntity(new Entity("Mr. Bean Fly", ref Program.player_renderer, Position: Program.camera.Position, Rotation: new Vector3D<float>(Program.camera.Pitch, Program.camera.Yaw, 0.0f), scale: 1.0f));
-                        }
-                        break;
-                    case Key.X:
-                        {
-                            Program.player.Position += new Vector3D<float>(1.0f, 0, 0);
-                        }
-                        break;
-                    case Key.Z:
-                        {
-                            Program.player.Position += new Vector3D<float>(0, 0, 1.0f);
-                        }
-                        break;
-                    case Key.Y:
-                        {
-                            Program.player.Position += new Vector3D<float>(0, 1.0f, 0);
-                        }
-                        break;
-                }
+                onKeyPressed?.Invoke(x);
             });
         }
     }

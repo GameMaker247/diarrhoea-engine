@@ -11,11 +11,12 @@ namespace DiarrhoeaEngine
 
         public unsafe Texture(string src)
         {
-            Bitmap bmp = new Bitmap(src);
+            Bitmap bmp;
+            try { bmp = new Bitmap(src); }catch(Exception e) { bmp = new Bitmap("../../../Images/Textures/ERROR.png"); }
             this.src = src;
 
-            bmp.RotateFlip(RotateFlipType.Rotate90FlipY);               //.Format32bppArgb
-            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);//Format32bppArgb);
+            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             id = Program.GL.GenTexture();
             Program.GL.BindTexture(TextureTarget.Texture2D, id);
@@ -33,8 +34,10 @@ namespace DiarrhoeaEngine
 
         public unsafe void Use(TextureUnit unit = TextureUnit.Texture0)
         {
+            Program.GL.Enable(EnableCap.Texture2D);
             Program.GL.ActiveTexture(unit);
             Program.GL.BindTexture(GLEnum.Texture2D, id);
+            Program.GL.Disable(EnableCap.Texture2D);
         }
     }
 }
