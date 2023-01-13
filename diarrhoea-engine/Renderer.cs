@@ -46,9 +46,6 @@ namespace DiarrhoeaEngine
         
         public override unsafe void Initialize()
         {
-            Program.window.ClearContext();
-            Program.window.GLContext.MakeCurrent();
-
             // --- OBJECT --- //
             _vertexArrayObject = Program.GL.GenVertexArray();
             Program.GL.BindVertexArray(_vertexArrayObject);

@@ -36,22 +36,29 @@ namespace DiarrhoeaEngine
         private static bool isServer = false;
         private static bool connected = false;
 
+        public static event EventHandler<Entity> OnSpawnEntity;
         private static unsafe void Main(string[] args)
         {
             WindowOptions options = WindowOptions.Default;
+
             options.Title = "Diarrhoea Engine -- V 0.0.1";
             options.Size = new Vector2D<int>(1080, 720);
             options.FramesPerSecond = 60;
             //options.WindowState = WindowState.Fullscreen;
             options.VSync= true;
-
+            
             window = Window.Create(options);
-
+           
             window.Load += OnLoad;
             window.Update += OnUpdate;
             window.Render += OnRender;
          
             window.Run();
+        }
+
+        private static void SpawnEntity(object sender, Entity entity)
+        {
+            WorldManager.SpawnEntity(entity);
         }
 
         private static void OnLoad()
@@ -74,42 +81,23 @@ namespace DiarrhoeaEngine
             _view = camera.GetViewMatrix();
             _projection = camera.GetProjectionMatrix();
 
+            OnSpawnEntity += new EventHandler<Entity>(SpawnEntity);
+
             int gridSize = 10;
 
             obj = new Renderer(Model.LoadModel("../../../Models/house_2.obj"), shader: "default", new string[] { "../../../Models/house_2.png" });
             Renderer stall = new Renderer(Model.LoadModel("../../../Models/stallCustom.obj"));//, shader: "default", new string[] { "../../../Models/stallTexture2.png" });
             example = new Renderer(Model.Square, shader: "fade", textures: new string[] { "../../../Images/retard.png", "../../../Images/bean.png" });
             player_renderer = new Renderer(Model.Square, textures: new string[] { "../../../Images/bean.png" });
-
             
             for (int x = -gridSize; x < gridSize; x++)
             {
                 for (int z = -gridSize; z < gridSize; z++)
                 {
-                    //if (rand.Next(0, 2) == 1)
-                        WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, -0.1f, z), Rotation: new Vector3D<float>(90.0f, 0.0f, 0.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
+                    WorldManager.SpawnEntity(new Entity($"NPC ({x + z})", ref example, Position: new Vector3D<float>(x, -0.1f, z), Rotation: new Vector3D<float>(90.0f, 0.0f, 0.0f)));//new Entity("Player", Model.Square, textures: new string[]{ "../../../Images/retard.png", "../../../Images/bean.png" }, shader: "fade", position: new Vector3D<float>(x, z, 0), rotation: new Vector3D<float>(-90.0f, 45.0f, 180.0f), scale: 1.0f));
                 }
             }
-            /*
-            for (int i = 0; i < 20; i++)
-            {
-                int x = rand.Next(-10, 10) * i;
-                int z = rand.Next(-10, 10) * i;
-                
-                WorldManager.SpawnEntity(new Entity("House", ref obj, Position: new Vector3D<float>(x, 0.0f, z), Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
-            }
-
-            for (int i = 0; i < 20; i++)
-            {
-                int x = rand.Next(-10, 10) * i;
-                int z = rand.Next(-10, 10) * i;
-
-                int rot = rand.Next(0, 360);
-                WorldManager.SpawnEntity(new Entity("Stall", ref stall, Position: new Vector3D<float>(x, 0.0f, z), Rotation: new Vector3D<float>(0.0f, rot, 0.0f), scale: 0.25f));
-            }
-            */
-
-            //WorldManager.SpawnEntity(player); 
+ 
             WorldManager.SpawnEntity(new Entity("Mr. Bean", ref player_renderer, Position: new Vector3D<float>(0.0f, 12.0f, 36.0f), Rotation: new Vector3D<float>(-25.0f, 45.0f, 0.0f), scale: 25.0f));
             WorldManager.SpawnEntity(new Entity("Player", ref player_renderer, Position: new Vector3D<float>(0.0f, -20.0f, 0.0f), Rotation: new Vector3D<float>(90.0f, 0.0f, 0.0f), scale: 25.0f));
 
@@ -143,15 +131,17 @@ namespace DiarrhoeaEngine
                 }
             };
 
-            ShitNetCore.onReceiveMSG += (NetMSGType type, string content) =>
+            ShitNetCore.onReceiveMSG += async (NetMSGType type, string content) =>
             {
+                if (network == null) return;
+
                 switch (type)
                 {
                     case NetMSGType.MOVE:
                         {
                             if (isServer)
                             {
-                                Server server = network as Server;
+                                Server server = (Server)network;
 
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
@@ -163,22 +153,19 @@ namespace DiarrhoeaEngine
                                 float Z = float.Parse(POS.Split(',')[2].Split('>')[0]);
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
-                                if(WorldManager.FindEntity(ID) == null)
-                                {
-                                    Entity mp = WorldManager.SpawnEntity(multiplayer);
-                                    mp.Position = pos;
-                                    mp.Name = ID;
-                                }
-                                else
-                                {
-                                    WorldManager.FindEntity(ID).Position = pos;
-                                }
 
-                                server.SendToAllBut($"MOVE(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
+                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                
+                                if (WorldManager.FindEntity(ID) == null)
+                                    WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                else
+                                    WorldManager.FindEntity(ID).Position = pos;
+                                
+                                await server.SendToAllBut($"MOVE(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
                             }
                             else
                             {
-                                Client client = network as Client;
+                                Client client = (Client)network;
 
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
@@ -188,16 +175,13 @@ namespace DiarrhoeaEngine
                                 float Z = float.Parse(POS.Split(',')[2].Split('>')[0]);
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
+
+                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                
                                 if (WorldManager.FindEntity(ID) == null)
-                                {
-                                    Entity mp = WorldManager.SpawnEntity(multiplayer);
-                                    mp.Position = pos;
-                                    mp.Name = ID;
-                                }
+                                    WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                                 else
-                                {
                                     WorldManager.FindEntity(ID).Position = pos;
-                                }
                             }
                         }
                         break;
@@ -205,29 +189,23 @@ namespace DiarrhoeaEngine
                         {
                             if (isServer)
                             {
-                                Server server = network as Server;
+                                Server server = (Server)network;
 
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
 
-                                Console.WriteLine(POS);
-
                                 float X = float.Parse(POS.Split('<')[1].Split(',')[0]);
-                                Console.WriteLine(X);
                                 float Y = float.Parse(POS.Split(',')[1]);
-                                Console.WriteLine(Y);
                                 float Z = float.Parse(POS.Split(',')[2].Split('>')[0]);
-                                Console.WriteLine(Z);
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-                                //Renderer crappy = new Renderer(Model.LoadModel("../../../Models/house_2.obj"), shader: "default", new string[] { "../../../Models/house_2.png" });
-                                Entity shit = WorldManager.SpawnEntity(multiplayer);
-                                shit.Position = pos;
-                                shit.Name = ID;
+                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
 
-                                server.SendToAllBut($"SPAWN(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
-                                server.clients.ForEach(x =>
+                                await server.SendTo($"SPAWN(POS: {camera.Position} | ID: SERVER)", server.GetNetID(ID, GetNetIDType.ID));
+                                await server.SendToAllBut($"SPAWN(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
+                                server.clients.ForEach(async x =>
                                 {
                                     Console.WriteLine(x.id);
                                     if (x.id != ID)
@@ -239,14 +217,14 @@ namespace DiarrhoeaEngine
                                         {
                                             Console.WriteLine("IT EXISTST");
 
-                                            server.SendTo($"SPAWN(POS: {WorldManager.FindEntity(x.id).Position} | ID: {x.id})", server.GetNetID(ID, GetNetIDType.ID));
+                                            await server.SendTo($"SPAWN(POS: {WorldManager.FindEntity(x.id).Position} | ID: {x.id})", server.GetNetID(ID, GetNetIDType.ID));
                                         }
                                     }
                                 });
                             }
                             else
                             {
-                                Client client = network as Client;
+                                Client client = (Client)network;
 
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
@@ -259,10 +237,10 @@ namespace DiarrhoeaEngine
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-                                //Renderer crappy = new Renderer(Model.LoadModel("../../../Models/house_2.obj"), shader: "default", new string[] { "../../../Models/house_2.png" });
-                                Entity shit = WorldManager.SpawnEntity(multiplayer);
-                                shit.Position = pos;
-                                shit.Name = ID;
+
+                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                //window.MakeCurrent();
+                                 WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                             }
                         }
                         break;
@@ -280,7 +258,7 @@ namespace DiarrhoeaEngine
                         {
                             if (isServer)
                             {
-                                Server server = network as Server;
+                                Server server = (Server)network;
 
                                 string MSG = ShitNetCore.GetContentValue(content, "MSG");
                                 NetID FROM = server.GetNetID(ShitNetCore.GetContentValue(content, "FROM"), GetNetIDType.ID);
@@ -288,13 +266,13 @@ namespace DiarrhoeaEngine
                                 Console.WriteLine($"USERNAME FOR MSG: {FROM.username}");
 
                                 string _from = FROM.username == string.Empty ? FROM.id : FROM.username;
-                                server.SendToAllBut($"TXT(MSG: '{MSG}' | FROM: {_from})", FROM);
+                                await server.SendToAllBut($"TXT(MSG: '{MSG}' | FROM: {_from})", FROM);
 
                                 Console.WriteLine($"(SERVER) --- {_from}: {MSG}");
                             }
                             else
                             {
-                                Client client = network as Client;
+                                Client client = (Client)network;
 
                                 string MSG = ShitNetCore.GetContentValue(content, "MSG");
                                 string FROM = ShitNetCore.GetContentValue(content, "FROM");
@@ -305,15 +283,16 @@ namespace DiarrhoeaEngine
                         break;
                     case NetMSGType.SET_ID:
                         {
-                            Client client = network as Client;
+                            Client client = (Client)network;
                             string ID = ShitNetCore.GetContentValue(content, "ID");//new Regex("[^(ID: ]+[^)]").Match(content).Value;
                             Console.WriteLine($"THE SERVER WANTS MY ID AS: {ID}");
                             client.id = new NetID(ID);
+                            network = client;
                         }
                         break;
                     case NetMSGType.SET_USERNAME:
                         {
-                            Server server = network as Server;
+                            Server server = (Server)network;
 
                             string ID = ShitNetCore.GetContentValue(content, "ID");
                             string Username = ShitNetCore.GetContentValue(content, "USERNAME");
@@ -340,24 +319,35 @@ namespace DiarrhoeaEngine
                         break;
                     case Key.J:
                         {
-                            network = ShitNetCore.CreateClient("127.0.0.1", 4444, ClientTester);
+                            Console.Write("Connect to: ");
+                            string ip = Console.ReadLine();
+
+                            network = ShitNetCore.CreateClient(ip, 4444, ClientTester);
                             connected = true;
                         }
                         break;
                 }
             };
 
-            controls.onKeyPressed += (Key x) =>
+            controls.onKeyPressed += async (Key x) =>
             {
                 switch (x)
                 {
                     case Key.W:
                         {
                             camera.Movement(new Vector2D<float>(0.0f, 1.0f));
-                            if(connected && !isServer)
+                            if(connected)
                             {
-                                Client client = network as Client;
-                                client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                if(isServer)
+                                {
+                                    Server server = network as Server;
+                                    await server.SendToAll($"MOVE(POS: {camera.Position} | ID: SERVER)");
+                                }
+                                else
+                                {
+                                    Client client = network as Client;
+                                    await client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                }
                             }
                             //Program.camera.Position += Program.camera.GetType() == typeof(FPSCamera) ? MathHelper.PlaneProjection(Program.camera.Forward * speed / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY) : MathHelper.PlaneProjection(Program.camera.Up * speed / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);
                         };
@@ -365,10 +355,18 @@ namespace DiarrhoeaEngine
                     case Key.A:
                         {
                             camera.Movement(new Vector2D<float>(-1.0f, 0.0f));
-                            if (connected && !isServer)
+                            if (connected)
                             {
-                                Client client = network as Client;
-                                client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                if (isServer)
+                                {
+                                    Server server = network as Server;
+                                    await server.SendToAll($"MOVE(POS: {camera.Position} | ID: SERVER)");
+                                }
+                                else
+                                {
+                                    Client client = network as Client;
+                                    await client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                }
                             }
                             //Program.camera.Position -= Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
                         };
@@ -376,10 +374,18 @@ namespace DiarrhoeaEngine
                     case Key.S:
                         {
                             camera.Movement(new Vector2D<float>(0.0f, -1.0f));
-                            if (connected && !isServer)
+                            if (connected)
                             {
-                                Client client = network as Client;
-                                client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                if (isServer)
+                                {
+                                    Server server = network as Server;
+                                    await server.SendToAll($"MOVE(POS: {camera.Position} | ID: SERVER)");
+                                }
+                                else
+                                {
+                                    Client client = network as Client;
+                                    await client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                }
                             }
                             //Program.camera.Position -= Program.camera.GetType() == typeof(FPSCamera) ? MathHelper.PlaneProjection(Program.camera.Forward * speed / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY) : MathHelper.PlaneProjection(Program.camera.Up * speed / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);
                         };
@@ -387,10 +393,18 @@ namespace DiarrhoeaEngine
                     case Key.D:
                         {
                             camera.Movement(new Vector2D<float>(1.0f, 0.0f));
-                            if (connected && !isServer)
+                            if (connected)
                             {
-                                Client client = network as Client;
-                                client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                if (isServer)
+                                {
+                                    Server server = network as Server;
+                                    await server.SendToAll($"MOVE(POS: {camera.Position} | ID: SERVER)");
+                                }
+                                else
+                                {
+                                    Client client = network as Client;
+                                    await client.Send($"MOVE(POS: {camera.Position} | ID: {client.id.id})");
+                                }
                             }
                             // Program.camera.Position += Vector3D.Normalize<float>(Vector3D.Cross<float>(Program.camera.Forward, Program.camera.Up)) * speed / (float)Program.window.FramesPerSecond;
                         };
@@ -423,10 +437,11 @@ namespace DiarrhoeaEngine
         private static void OnRender(double obj)
         {
             GL.Clear(ClearBufferMask.ColorBufferBit | ClearBufferMask.DepthBufferBit);
-
+    
             _view = camera.GetViewMatrix();
             _projection = camera.GetProjectionMatrix();
 
+            WorldManager.Initialize();
             WorldManager.Render();
         }
 

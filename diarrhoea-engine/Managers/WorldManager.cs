@@ -11,10 +11,12 @@ namespace DiarrhoeaEngine
     public static class WorldManager
     {
         public static List<Entity> entities = new List<Entity>(); //Includes players, NPCs and world objects (Doesn't include Tiles)
+        private static List<Entity> uninitialized = new List<Entity>();
 
         public static Entity SpawnEntity(Entity entity)
         {
             entities.Add(entity);
+            uninitialized.Add(entity);
             return entity;
         }
 
@@ -34,6 +36,16 @@ namespace DiarrhoeaEngine
         public static Entity FindEntity(string name)
         {
             return entities.Find(x => x.Name == name);
+        }
+
+        public static void Initialize()
+        {
+            uninitialized.ForEach(x =>
+            {
+                x.Initialize();
+            });
+
+            uninitialized.Clear();
         }
 
         public static void Render()

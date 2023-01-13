@@ -46,9 +46,9 @@ namespace DiarrhoeaEngine
             lastPosition = current;
         }
 
-        private void OnMouseClick(IMouse mouse, MouseButton btn, System.Numerics.Vector2 arg3)
-        {
-            //Console.WriteLine($"CLICKED THE {btn} MOUSE BUTTON");
+        private void OnMouseClick(IMouse mouse, MouseButton btn, System.Numerics.Vector2 pos)
+        { 
+
         }
 
         private void YawCam(float delta)

@@ -21,13 +21,11 @@ namespace DiarrhoeaEngine
 
             this.renderer = new Renderer(renderer);
             this.renderer.SetEntity(this);
-            this.renderer.Initialize();
 
             if (components != null)
             {
                 this.components = components;
                 this.components.ForEach(x => x.SetEntity(this));
-                this.components.ForEach(x => x.Initialize());
             }
 
             if (Position == null) this.Position = Vector3D<float>.Zero;
@@ -38,6 +36,13 @@ namespace DiarrhoeaEngine
             else this.Rotation = (Vector3D<float>)Rotation;
 
             this.scale= scale;
+        }
+
+        public void Initialize()
+        {
+            renderer.Initialize();
+            if(components != null)
+                components.ForEach(x => x.Initialize());
         }
 
         public void AddComponent(Component component)
@@ -60,7 +65,6 @@ namespace DiarrhoeaEngine
         {
             components?.ForEach(x => x.Update());
             onUpdate?.Invoke();
-            //if (MathHelper.Distance(Position, new Vector3D<float>(-Program.camera.Position.Z, Program.camera.Position.X, -Program.camera.Position.Y)) < 10.0f) Destroy();
         }
 
         public void Destroy()
