@@ -32,9 +32,9 @@ namespace DiarrhoeaEngine
         public static Renderer example;
         public static Renderer player_renderer;
 
-        private static Network network;
-        private static bool isServer = false;
-        private static bool connected = false;
+        public static Network network;
+        public static bool isServer = false;
+        public static bool connected = false;
 
         //public static event EventHandler<Entity> OnSpawnEntity;
         //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
@@ -158,8 +158,6 @@ namespace DiarrhoeaEngine
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
-                                
                                 if (WorldManager.FindEntity(ID) == null)
                                     WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                                 else
@@ -169,8 +167,6 @@ namespace DiarrhoeaEngine
                             }
                             else
                             {
-                                Client client = (Client)network;
-
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
 
@@ -180,8 +176,6 @@ namespace DiarrhoeaEngine
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
-                                
                                 if (WorldManager.FindEntity(ID) == null)
                                     WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                                 else
@@ -228,8 +222,6 @@ namespace DiarrhoeaEngine
                             }
                             else
                             {
-                                Client client = (Client)network;
-
                                 string POS = ShitNetCore.GetContentValue(content, "POS");
                                 string ID = ShitNetCore.GetContentValue(content, "ID");
 
@@ -247,7 +239,25 @@ namespace DiarrhoeaEngine
                         break;
                     case NetMSGType.ROTATE:
                         {
+                            if (isServer)
+                            {
+                                Server server = (Server)network;
 
+                                float PITCH = float.Parse(ShitNetCore.GetContentValue(content, "PITCH"));
+                                float YAW = float.Parse(ShitNetCore.GetContentValue(content, "YAW"));
+                                string ID = ShitNetCore.GetContentValue(content, "ID");
+
+                                WorldManager.FindEntity(ID).Rotation = new Vector3D<float>(PITCH, YAW, 0.0f);
+                                await server.SendToAllBut($"ROTATE(PITCH: {PITCH} | YAW: {YAW} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
+                            }
+                            else
+                            {
+                                float PITCH = float.Parse(ShitNetCore.GetContentValue(content, "PITCH"));
+                                float YAW = float.Parse(ShitNetCore.GetContentValue(content, "YAW"));
+                                string ID = ShitNetCore.GetContentValue(content, "ID");
+
+                                WorldManager.FindEntity(ID).Rotation = new Vector3D<float>(PITCH, YAW, 0.0f);
+                            }
                         }
                         break;
                     case NetMSGType.RECENTER:
