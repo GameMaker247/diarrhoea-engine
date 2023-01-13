@@ -36,7 +36,14 @@ namespace DiarrhoeaEngine
         private static bool isServer = false;
         private static bool connected = false;
 
-        public static event EventHandler<Entity> OnSpawnEntity;
+        //public static event EventHandler<Entity> OnSpawnEntity;
+        //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+        //private static void SpawnEntity(object sender, Entity entity)
+        //{
+        //  WorldManager.SpawnEntity(entity);
+        //}
+        //OnSpawnEntity += new EventHandler<Entity>(SpawnEntity);
+
         private static unsafe void Main(string[] args)
         {
             WindowOptions options = WindowOptions.Default;
@@ -56,10 +63,7 @@ namespace DiarrhoeaEngine
             window.Run();
         }
 
-        private static void SpawnEntity(object sender, Entity entity)
-        {
-            WorldManager.SpawnEntity(entity);
-        }
+
 
         private static void OnLoad()
         {
@@ -81,7 +85,7 @@ namespace DiarrhoeaEngine
             _view = camera.GetViewMatrix();
             _projection = camera.GetProjectionMatrix();
 
-            OnSpawnEntity += new EventHandler<Entity>(SpawnEntity);
+            
 
             int gridSize = 10;
 
@@ -200,7 +204,7 @@ namespace DiarrhoeaEngine
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                
                                 WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
 
                                 await server.SendTo($"SPAWN(POS: {camera.Position} | ID: SERVER)", server.GetNetID(ID, GetNetIDType.ID));
@@ -237,10 +241,7 @@ namespace DiarrhoeaEngine
 
                                 Vector3D<float> pos = new Vector3D<float>(X, Y, Z);
 
-
-                                //OnSpawnEntity(null, new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
-                                //window.MakeCurrent();
-                                 WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
+                                WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                             }
                         }
                         break;
@@ -284,7 +285,7 @@ namespace DiarrhoeaEngine
                     case NetMSGType.SET_ID:
                         {
                             Client client = (Client)network;
-                            string ID = ShitNetCore.GetContentValue(content, "ID");//new Regex("[^(ID: ]+[^)]").Match(content).Value;
+                            string ID = ShitNetCore.GetContentValue(content, "ID");
                             Console.WriteLine($"THE SERVER WANTS MY ID AS: {ID}");
                             client.id = new NetID(ID);
                             network = client;
