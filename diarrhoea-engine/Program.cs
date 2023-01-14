@@ -161,7 +161,7 @@ namespace DiarrhoeaEngine
                                 if (WorldManager.FindEntity(ID) == null)
                                     WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
                                 else
-                                    WorldManager.FindEntity(ID).Position = pos;
+                                    WorldManager.FindEntity(ID).Position += pos;
                                 
                                 await server.SendToAllBut($"MOVE(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
                             }
@@ -202,6 +202,7 @@ namespace DiarrhoeaEngine
                                 WorldManager.SpawnEntity(new Entity(ID, ref stall, Position: pos, Rotation: new Vector3D<float>(0.0f, 0.0f, 0.0f), scale: 1.0f));
 
                                 await server.SendTo($"SPAWN(POS: {camera.Position} | ID: SERVER)", server.GetNetID(ID, GetNetIDType.ID));
+                                await server.SendTo($"SET_FLOAT(NAME: loop, VALUE: {loop})", server.GetNetID(ID, GetNetIDType.ID));
                                 await server.SendToAllBut($"SPAWN(POS: {pos} | ID: {ID})", server.GetNetID(ID, GetNetIDType.ID));
                                 server.clients.ForEach(async x =>
                                 {
@@ -312,6 +313,14 @@ namespace DiarrhoeaEngine
                             Console.WriteLine($"USERNAME IS {Username}");
 
                             server.GetNetID(ID, GetNetIDType.ID).username = Username;
+                        }
+                        break;
+                    case NetMSGType.SET_FLOAT:
+                        {
+                            string NAME = ShitNetCore.GetContentValue(content, "NAME");
+                            float VALUE = float.Parse(ShitNetCore.GetContentValue(content, "VALUE"));
+
+                            loop = VALUE;
                         }
                         break;
                 }

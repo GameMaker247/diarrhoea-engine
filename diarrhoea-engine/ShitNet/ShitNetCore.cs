@@ -48,7 +48,8 @@ namespace DiarrhoeaEngine.ShitNet
         ROTATE,
         TXT,
         SET_ID,
-        SET_USERNAME
+        SET_USERNAME,
+        SET_FLOAT
     }
 
     public class NetID
