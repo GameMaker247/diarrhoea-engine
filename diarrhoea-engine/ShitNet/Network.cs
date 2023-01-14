@@ -33,7 +33,6 @@ namespace DiarrhoeaEngine.ShitNet
             try
             {
                 List<byte> finalResult = new List<byte>();
-                //CancellationTokenSource src = new CancellationTokenSource(500000);
 
                 try
                 {
@@ -62,9 +61,6 @@ namespace DiarrhoeaEngine.ShitNet
                         Array.Clear(received, 0, received.Length);
 
                         if (length < PACKET_SIZE) break;
-
-                        GC.Collect();
-                        GC.WaitForPendingFinalizers();
                     }
 
                     return finalResult.ToArray();
@@ -72,18 +68,11 @@ namespace DiarrhoeaEngine.ShitNet
                 catch
                 {
                     finalResult.Clear();
-
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
-
                     return new byte[0];
                 }
             }
             catch
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 return new byte[0];
             }
         }
@@ -100,9 +89,6 @@ namespace DiarrhoeaEngine.ShitNet
                     while (task.Status != TaskStatus.RanToCompletion) { Console.WriteLine("Writing..."); }
 
                     await stream.FlushAsync();
-
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
 
                     return;
                 }
@@ -125,15 +111,11 @@ namespace DiarrhoeaEngine.ShitNet
 
                         await stream.FlushAsync();
                     }
-
-                    GC.Collect();
-                    GC.WaitForPendingFinalizers();
                 }
             }
             catch
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+
             }
         }
 
@@ -150,9 +132,6 @@ namespace DiarrhoeaEngine.ShitNet
                 Console.WriteLine(this.GetType().GetFields().GetValue(i).ToString());
                 this.GetType().GetFields().SetValue(null, 0);
             }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
     }
 
@@ -211,8 +190,7 @@ namespace DiarrhoeaEngine.ShitNet
             }
             catch
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+
             }
         }
 
@@ -246,9 +224,6 @@ namespace DiarrhoeaEngine.ShitNet
                 string msg = Encoding.UTF8.GetString(data);
                 ShitNetCore.ConvertNetMSG(msg, GetNetID(client, GetNetIDType.CLIENT));
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 AcceptMessage(client);
             }
         }
@@ -257,9 +232,6 @@ namespace DiarrhoeaEngine.ShitNet
         {
             byte[] data = Encoding.UTF8.GetBytes(msg);
             await SendMessage(client.GetStream(), data);
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         public async Task SendTo(string msg, NetID id)
@@ -271,9 +243,6 @@ namespace DiarrhoeaEngine.ShitNet
                 if (client.id == id.id)
                     await SendMessage(client.client.GetStream(), data);
             }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         public async Task SendToAll(string msg)
@@ -282,9 +251,6 @@ namespace DiarrhoeaEngine.ShitNet
             {
                 await SendTo(msg, client);
             }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         public async Task SendToAllBut(string msg, NetID id)
@@ -294,9 +260,6 @@ namespace DiarrhoeaEngine.ShitNet
                 if (client.id != id.id)
                     await SendTo(msg, client.client);
             }
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
     }
 
@@ -341,14 +304,14 @@ namespace DiarrhoeaEngine.ShitNet
                 Thread acceptThread = new Thread(accept);
                 acceptThread.Start();
 
+
                 ThreadStart execute = new ThreadStart(executer);
                 Thread executeThread = new Thread(execute);
                 executeThread.Start();
             }
             catch (Exception e)
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+
             }
         }
 
@@ -366,15 +329,11 @@ namespace DiarrhoeaEngine.ShitNet
 
                 ShitNetCore.ConvertNetMSG(msg, null);
 
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
-
                 AcceptMessage();
             }
             catch
             {
-                GC.Collect();
-                GC.WaitForPendingFinalizers();
+
             }
         }
 
@@ -382,9 +341,6 @@ namespace DiarrhoeaEngine.ShitNet
         {
             byte[] data = Encoding.UTF8.GetBytes(msg);
             await SendMessage(GetStream(), data);
-
-            GC.Collect();
-            GC.WaitForPendingFinalizers();
         }
 
         public void OnProcessExit(object sender, EventArgs e)

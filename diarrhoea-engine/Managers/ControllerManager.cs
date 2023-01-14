@@ -1,10 +1,12 @@
-﻿using Silk.NET.Core.Contexts;
+﻿using DiarrhoeaEngine.ShitNet;
+using Silk.NET.Core.Contexts;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -46,19 +48,47 @@ namespace DiarrhoeaEngine
             lastPosition = current;
         }
 
-        private void OnMouseClick(IMouse mouse, MouseButton btn, System.Numerics.Vector2 arg3)
-        {
-            //Console.WriteLine($"CLICKED THE {btn} MOUSE BUTTON");
+        private void OnMouseClick(IMouse mouse, MouseButton btn, System.Numerics.Vector2 pos)
+        { 
+
         }
 
-        private void YawCam(float delta)
+        private async void YawCam(float delta)
         {
             Program.camera.Yaw += (delta) / (float)Program.window.FramesPerSecond;
+            if (Program.connected)
+            {
+                if (Program.isServer)
+                {
+                    Server server = (Server)Program.network;
+                    await server.SendToAll($"ROTATE(PITCH: {Program.camera.Pitch} | YAW: {Program.camera.Yaw} | ID: SERVER)");
+                }
+                else
+                {
+                    Client client = (Client)Program.network;
+                    if(client.id != null)
+                        await client.Send($"ROTATE(PITCH: {Program.camera.Pitch} | YAW: {Program.camera.Yaw} | ID: {client.id.id})");
+                }
+            }
         }
 
-        private void PitchCam(float delta)
+        private async void PitchCam(float delta)
         {
             Program.camera.Pitch += (delta) / (float)Program.window.FramesPerSecond;
+            if(Program.connected) 
+            { 
+                if(Program.isServer)
+                {
+                    Server server = (Server)Program.network;
+                    await server.SendToAll($"ROTATE(PITCH: {Program.camera.Pitch} | YAW: {Program.camera.Yaw} | ID: SERVER)");
+                }
+                else
+                {
+                    Client client = (Client)Program.network;
+                    if (client.id != null)
+                        await client.Send($"ROTATE(PITCH: {Program.camera.Pitch} | YAW: {Program.camera.Yaw} | ID: {client.id.id})");
+                }
+            }
             //if (Program.camera.pitch < -60.0f) Program.camera.pitch = -60.0f;
             //else if (Program.camera.pitch > 60.0f) Program.camera.pitch = 60.0f;
         }
