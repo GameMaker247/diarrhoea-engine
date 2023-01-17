@@ -31,7 +31,7 @@ namespace DiarrhoeaEngine
 
         public static Vector3D<float> PlaneProjection(Vector3D<float> position, Vector3D<float> plane)
         {
-            return position;
+            return position * (new Vector3D<float>(1.0f, 1.0f, 1.0f)-plane);
         }
     }
 }

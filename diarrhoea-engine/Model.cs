@@ -1,14 +1,4 @@
-﻿using Silk.NET.Maths;
-using Silk.NET.OpenGL;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Text.RegularExpressions;
-using System.Threading.Tasks;
-
-namespace DiarrhoeaEngine
+﻿namespace DiarrhoeaEngine
 {
     public class Model
     {
@@ -25,125 +15,37 @@ namespace DiarrhoeaEngine
             this.texture = texture;
         }
 
-        public static Model LoadModel(string src)
+        public static Model LoadNewModel(string src)
         {
-            //if (models.ContainsKey(src)) { models.TryGetValue(src, out Model result); return result; }
+            if(models.TryGetValue(src, out Model model)) return model;
 
-            string file = File.ReadAllText(src);
+            Assimp.AssimpContext importer = new Assimp.AssimpContext();
+            Assimp.Scene scene = importer.ImportFile(src);
 
-            Regex v = new Regex("v (-|)[0-9]+.[0-9]+ (-|)[0-9]+.[0-9]+ (-|)[0-9]+.[0-9]+");
-            Regex vn = new Regex("vn (-|)[0-9]+.[0-9]+ (-|)[0-9]+.[0-9]+ (-|)[0-9]+.[0-9]+");
-            Regex vt = new Regex("vt (-|)[0-9]+.[0-9]+ (-|)[0-9]+.[0-9]+");
-            Regex f = new Regex("f [0-9]+/[0-9]+/[0-9]+ [0-9]+/[0-9]+/[0-9]+ [0-9]+/[0-9]+/[0-9]+");
-
-            List<Vector3D<float>> vertices = new List<Vector3D<float>>();
-            List<Vector2D<float>> textures = new List<Vector2D<float>>();
-            List<Vector3D<float>> normals = new List<Vector3D<float>>();
-            
-            List<float> _vertices = new List<float>();
-            List<float> _textures = new List<float>();
-            List<float> _normals = new List<float>();
-            List<uint> _indices = new List<uint>();
-
-            MatchCollection regexVertices = v.Matches(file);
-            MatchCollection regexNormals = vn.Matches(file);
-            MatchCollection regexTextures = vt.Matches(file);
-            MatchCollection regexFaces = f.Matches(file);
-
-            for(int i = 0; i < regexVertices.Count; i++)
+            List<float> vertices = new List<float>();
+            for(int i = 0; i < scene.Meshes[0].Vertices.Count; i++)
             {
-                string values = regexVertices[i].Value.Split('v')[1];
-
-                float x = float.Parse(values.Split(' ')[1]);
-                float y = float.Parse(values.Split(' ')[2]);
-                float z = float.Parse(values.Split(' ')[3]);
-
-                vertices.Add(new Vector3D<float>(x, y, z));
+                vertices.Add(scene.Meshes[0].Vertices[i].X);
+                vertices.Add(scene.Meshes[0].Vertices[i].Y);
+                vertices.Add(scene.Meshes[0].Vertices[i].Z);
             }
 
-            for (int i = 0; i < regexTextures.Count; i++)
+            List<uint> indices = new List<uint>();
+            for(int i = 0; i < scene.Meshes[0].GetIndices().Length; i++)
             {
-                //try
-                //{
-                    string values = regexTextures[i].Value.Split("vt")[1];
-
-                    float x = float.Parse(values.Split(' ')[1]);
-                    float y = float.Parse(values.Split(' ')[2]);
-
-                    textures.Add(new Vector2D<float>(x, y));
-                //}catch(Exception ex) { }
+                indices.Add((uint)scene.Meshes[0].GetIndices()[i]);
             }
 
-            for (int i = 0; i < regexNormals.Count; i++)
+            List<float> textures = new List<float>();
+            for (int i = 0; i < scene.Meshes[0].TextureCoordinateChannels[0].Count; i++)
             {
-                string values = regexNormals[i].Value.Split("vn")[1];
-
-                float x = float.Parse(values.Split(' ')[1]);
-                float y = float.Parse(values.Split(' ')[2]);
-                float z = float.Parse(values.Split(' ')[3]);
-
-                normals.Add(new Vector3D<float>(x, y, z));
+                textures.Add(scene.Meshes[0].TextureCoordinateChannels[0][i].X);
+                textures.Add(1-scene.Meshes[0].TextureCoordinateChannels[0][i].Y);
             }
 
-            for(int i = 0; i < regexFaces.Count; i++)
-            {
-                string values = regexFaces[i].Value.Split('f')[1];
-
-                //Vertex Index
-                int vertex_1 = int.Parse(values.Split(' ')[1].Split('/')[0])-1;
-                int texture_1 = int.Parse(values.Split(' ')[1].Split('/')[1])-1;
-                int normal_1 = int.Parse(values.Split(' ')[1].Split('/')[2])-1;
-
-                //UV Index
-                int vertex_2 = int.Parse(values.Split(' ')[2].Split('/')[0])-1;
-                //int texture_2 = int.Parse(values.Split(' ')[2].Split('/')[1])-1;
-                int normal_2 = int.Parse(values.Split(' ')[2].Split('/')[2])-1;
-
-                //Normal Index
-                int vertex_3 = int.Parse(values.Split(' ')[3].Split('/')[0])-1; // vertice Z
-                int texture_3 = int.Parse(values.Split(' ')[3].Split('/')[1])-1; // texture Z
-                int normal_3 = int.Parse(values.Split(' ')[3].Split('/')[2])-1; // normal Z
-             
-                _indices.Add((uint)vertex_1);
-                _indices.Add((uint)vertex_2);
-                _indices.Add((uint)vertex_3);
-
-                
-                _textures.Add(textures.ToArray()[texture_1].X);
-                _textures.Add(textures.ToArray()[texture_1].Y);
-
-                //_textures.Add(textures.ToArray()[(int)Math.Floor((float)texture_2 / 2)].X);
-                //_textures.Add(textures.ToArray()[(int)Math.Floor((float)texture_2 / 2)].Y);
-
-                _textures.Add(textures.ToArray()[texture_3].X);
-                _textures.Add(textures.ToArray()[texture_3].Y);
-            
-                _normals.Add(normals[(int)normal_1].X);
-                _normals.Add(normals[(int)normal_1].Y);
-                _normals.Add(normals[(int)normal_1].Z);
-
-                _normals.Add(normals[(int)normal_2].X);
-                _normals.Add(normals[(int)normal_2].Y);
-                _normals.Add(normals[(int)normal_2].Z);
-
-                _normals.Add(normals[(int)normal_3].X);
-                _normals.Add(normals[(int)normal_3].Y);
-                _normals.Add(normals[(int)normal_3].Z);
-            }
-
-            for(int i = 0; i < vertices.Count; i++)
-            {
-                _vertices.Add(vertices[i].X);
-                _vertices.Add(vertices[i].Y);
-                _vertices.Add(vertices[i].Z);
-            }
-
-            return new Model(_vertices.ToArray(), _indices.ToArray(), _textures.ToArray());
-        }
-
-        private static void ProcessVertex()
-        {
-
+            Model result = new Model(vertices.ToArray(), indices.ToArray(), textures.ToArray());
+            models.Add(src, result);
+            return result;
         }
 
         public static Model Square = new Model(new float[]

@@ -15,7 +15,7 @@ namespace DiarrhoeaEngine
             try { bmp = new Bitmap(src); }catch(Exception e) { bmp = new Bitmap("../../../Images/Textures/ERROR.png"); }
             this.src = src;
 
-            bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
+            //bmp.RotateFlip(RotateFlipType.RotateNoneFlipY);
             BitmapData data = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, System.Drawing.Imaging.PixelFormat.Format32bppArgb);
 
             id = Program.GL.GenTexture();

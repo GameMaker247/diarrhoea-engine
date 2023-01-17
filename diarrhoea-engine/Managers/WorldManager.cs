@@ -14,6 +14,13 @@ namespace DiarrhoeaEngine
         private static List<Entity> uninitialized = new List<Entity>();
         //private static Queue<Entity> queue = new Queue<Entity>();
 
+        public static Map loaded { get; private set; }
+        public static void LoadMap(string src)
+        {
+            Console.WriteLine(src);
+            loaded = new Map(src);
+        }
+
         public static Entity SpawnEntity(Entity entity)
         {
             entities.Add(entity);

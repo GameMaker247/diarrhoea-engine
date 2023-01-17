@@ -36,7 +36,7 @@ namespace DiarrhoeaEngine
         public override void Movement(Vector2D<float> vectors)
         {
             Position += MathHelper.PlaneProjection((Forward * vectors.Y * SPEED) / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY) +
-                MathHelper.PlaneProjection(Vector3D.Normalize<float>(Vector3D.Cross<float>(Forward, Up)) * vectors.X * SPEED / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);
+                MathHelper.PlaneProjection(Vector3D.Normalize<float>(Vector3D.Cross<float>(Forward, Up)) * vectors.X * SPEED / (float)Program.window.FramesPerSecond, Vector3D<float>.UnitY);        
         }
 
         public override void UpdateVectors()

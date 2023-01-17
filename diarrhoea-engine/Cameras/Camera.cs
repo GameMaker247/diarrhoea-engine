@@ -45,7 +45,7 @@ namespace DiarrhoeaEngine
 
         public virtual void Zoom(float zoom) { }
         public virtual void UpdateVectors() { }
-        public virtual void Movement(Vector2D<float> vectors) { }
+        public virtual void Movement(Vector2D<float> vectors) { throw new NotImplementedException(); }
         public virtual Matrix4X4<float> GetProjectionMatrix() { throw new NotImplementedException(); }
         public virtual Matrix4X4<float> GetViewMatrix() { throw new NotImplementedException(); }
     }

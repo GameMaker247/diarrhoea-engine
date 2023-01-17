@@ -6,9 +6,11 @@ namespace DiarrhoeaEngine
     public class Entity
     {
         public string Name { get; set; }
-        public Vector3D<float> Position { get; set; }
+        public Vector3D<float> Position { get; set; }      
         public Vector3D<float> Rotation { get; set; }
         public float scale;
+
+        public Vector3D<float>? Target = null;
 
         private Renderer renderer;
         private List<Component> components = new List<Component>();
@@ -63,6 +65,19 @@ namespace DiarrhoeaEngine
 
         public void Update()
         {
+            if (Target != null)
+            {
+                Console.WriteLine($"{Position} MOVING TO: {Target}");
+
+                Vector3D<float> normal = Vector3D.Normalize<float>((Vector3D<float>)Target - Position);
+                Position += normal * 6.0f / (float)Program.window.FramesPerSecond;
+                if (Math.Abs(MathHelper.Distance((Vector3D<float>)Target, Position)) <= 0.1f)
+                {
+                    Console.WriteLine("ENDED");
+                    Target = null;
+                }
+            }
+
             components?.ForEach(x => x.Update());
             onUpdate?.Invoke();
         }

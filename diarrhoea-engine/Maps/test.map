@@ -1,0 +1,8 @@
+﻿set 0 "../../../Images/bean.png"
+set 1 "../../../Images/retard.png"
+get 1,0,0,0,1
+get 0,1,0,1,0
+get 0,0,1,0,0
+get 0,1,0,1,0
+get 1,0,0,0,1
+size 5,5,10
